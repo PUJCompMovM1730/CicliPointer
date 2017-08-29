@@ -21,7 +21,15 @@
         <activity
             android:name=".InicioActivity"
             android:label="@string/title_activity_inicio"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".ProfileActivity" />
+        <activity android:name=".ReccoridoDetalleActivity" />
+        <activity android:name=".AmigosActivity" />
+        <activity android:name=".UsuarioDetalleActivity" />
+        <activity android:name=".RutasUsActivity" />
+        <activity android:name=".RutaDetalleUsActivity" />
+        <activity android:name=".RutasGruActivity" />
+        <activity android:name=".RutaNuevaActivity"></activity>
     </application>
 
 </manifest>

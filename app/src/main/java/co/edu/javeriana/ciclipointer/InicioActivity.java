@@ -1,5 +1,6 @@
 package co.edu.javeriana.ciclipointer;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
@@ -44,12 +45,7 @@ public class InicioActivity extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.inicio, menu);
-        return true;
-    }
+
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -59,9 +55,7 @@ public class InicioActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
+
 
         return super.onOptionsItemSelected(item);
     }
@@ -72,14 +66,21 @@ public class InicioActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         int id = item.getItemId();
 
-        if (id == R.id.nav_camera) {
-            // Handle the camera action
-        } else if (id == R.id.nav_gallery) {
-
-        } else if (id == R.id.nav_slideshow) {
-
-        } else if (id == R.id.nav_manage) {
-
+        if (id == R.id.nav_perfil) {
+            Intent intent = new Intent(getApplicationContext(),ProfileActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_amigos) {
+            Intent intent = new Intent(getApplicationContext(),AmigosActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_mis_rutas) {
+            Intent intent = new Intent(getApplicationContext(),RutasUsActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_recorridos_grupales) {
+            Intent intent = new Intent(getApplicationContext(),RutasGruActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_nueva_ruta) {
+            Intent intent = new Intent(getApplicationContext(),RutaNuevaActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {

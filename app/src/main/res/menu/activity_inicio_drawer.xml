@@ -3,25 +3,25 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
+            android:id="@+id/nav_perfil"
             android:icon="@drawable/ic_menu_camera"
             android:title="Mi Perfil" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/nav_amigos"
             android:icon="@drawable/ic_menu_gallery"
             android:title="Amigos" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_recorridos_grupales"
             android:icon="@drawable/ic_menu_slideshow"
             android:title="Recorridos Grupales" />
         <item
-            android:id="@+id/nav_manage2"
+            android:id="@+id/nav_mis_rutas"
             android:icon="@drawable/ic_menu_manage"
             android:title="Mis Rutas" />
         <item
-            android:id="@+id/nav_manage"
+            android:id="@+id/nav_nueva_ruta"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Rutas Sugeridas" />
+            android:title="Nueva Ruta" />
     </group>
 
     <item android:title="Communícate">
