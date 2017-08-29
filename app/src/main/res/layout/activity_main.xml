@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
+    <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/layoutMain"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:orientation="vertical"
+
+        >
+
+        <ImageView
+            android:id="@+id/Idroidan"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:src="@drawable/ciclipointer"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="20dp" />
+
+        <EditText
+            android:id="@+id/nombreUs"
+            android:layout_below="@id/Idroidan"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/NombreUsuario"
+
+            android:paddingTop="35dp"
+            />
+        <EditText
+            android:id="@+id/passUs"
+            android:layout_below="@id/nombreUs"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/PasswordUsuario"
+            android:password="true"
+            android:paddingTop="35dp"
+            />
+        <LinearLayout
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_below="@+id/passUs"
+            android:paddingTop="35dp"
+            >
+            <Button
+                android:id="@+id/Binicio"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="Iniciar Sesión"
+                android:background="@color/colorApp"
+                android:layout_margin="4dp"/>
+            <Button
+                android:id="@+id/Bregistro"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.5"
+                android:text="Registro"
+                android:background="@color/colorApp"
+                android:layout_margin="4dp"
+                />
+        </LinearLayout>
+
+    </RelativeLayout>
+</ScrollView>
