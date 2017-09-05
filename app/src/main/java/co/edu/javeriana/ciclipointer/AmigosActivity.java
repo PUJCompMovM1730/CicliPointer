@@ -24,13 +24,13 @@ public class AmigosActivity extends AppCompatActivity {
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, arreglo);
 
-        listView = (ListView)findViewById(R.id.Amigos);
+        listView = (ListView)findViewById(R.id.listAmigos);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent intent = new Intent(getBaseContext(), UsuarioDetalleActivity.class);
-                intent.putExtra("amigo",arreglo.get(position));
+                intent.putExtra("amigo",arreglo.get(i));
                 startActivity(intent);
             }
         });
@@ -41,5 +41,5 @@ public class AmigosActivity extends AppCompatActivity {
             arreglo.add("Usuario "+i);
         }
     }
-
 }
+

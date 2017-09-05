@@ -4,7 +4,6 @@
 
     <application
         android:allowBackup="true"
-        android:background="#00FF00"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
@@ -23,13 +22,9 @@
             android:label="@string/title_activity_inicio"
             android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".ProfileActivity" />
-        <activity android:name=".ReccoridoDetalleActivity" />
+        <activity android:name=".RecorridosActivity" />
         <activity android:name=".AmigosActivity" />
-        <activity android:name=".UsuarioDetalleActivity" />
-        <activity android:name=".RutasUsActivity" />
-        <activity android:name=".RutaDetalleUsActivity" />
-        <activity android:name=".RutasGruActivity" />
-        <activity android:name=".RutaNuevaActivity"></activity>
+        <activity android:name=".UsuarioDetalleActivity"></activity>
     </application>
 
 </manifest>

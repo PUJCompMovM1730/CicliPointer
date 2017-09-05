@@ -3,7 +3,6 @@ package co.edu.javeriana.ciclipointer;
 import android.content.Intent;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.ButtonBarLayout;
 import android.view.View;
 import android.widget.Button;
 
@@ -15,11 +14,11 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         registro = (Button) findViewById(R.id.Bregistro);
+
         registro.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(),RegistroActivity.class);
                 startActivity(intent);
             }

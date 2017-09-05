@@ -11,17 +11,9 @@
             android:icon="@drawable/ic_menu_gallery"
             android:title="Amigos" />
         <item
-            android:id="@+id/nav_recorridos_grupales"
-            android:icon="@drawable/ic_menu_slideshow"
-            android:title="Recorridos Grupales" />
-        <item
             android:id="@+id/nav_mis_rutas"
             android:icon="@drawable/ic_menu_manage"
             android:title="Mis Rutas" />
-        <item
-            android:id="@+id/nav_nueva_ruta"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Nueva Ruta" />
     </group>
 
     <item android:title="Communícate">

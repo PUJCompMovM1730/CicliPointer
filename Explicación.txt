@@ -1,0 +1,8 @@
+EXPLICACIÓN:
+
+
+- Nueva ruta: creadá por el usuario. se guarda en servidor también. (Fecha/Hora, Lugar Inicio/Fin)
+- Mis rutas: rutas creadás por el usuario (Eliminar, Usar, Editar).
+- Viajar: Usa rutas sugeridas por el APP.
+
+-Recorridos grupales: un usuario invita a sus amigos a una de sus rutas.

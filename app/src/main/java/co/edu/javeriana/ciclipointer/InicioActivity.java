@@ -24,7 +24,6 @@ public class InicioActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -73,15 +72,8 @@ public class InicioActivity extends AppCompatActivity
             Intent intent = new Intent(getApplicationContext(),AmigosActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_mis_rutas) {
-            Intent intent = new Intent(getApplicationContext(),RutasUsActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.nav_recorridos_grupales) {
-            Intent intent = new Intent(getApplicationContext(),RutasGruActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.nav_nueva_ruta) {
-            Intent intent = new Intent(getApplicationContext(),RutaNuevaActivity.class);
-            startActivity(intent);
-        } else if (id == R.id.nav_share) {
+
+        }  else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
 
