@@ -11,26 +11,27 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
-public class AmigosActivity extends AppCompatActivity {
+public class OpcionesViajeActivity extends AppCompatActivity {
 
     private List<String> arreglo = new ArrayList<>();
     private ListView listView;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_amigos);
+        setContentView(R.layout.activity_opciones_viaje);
 
         llenarLista();
         ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
                 android.R.layout.simple_list_item_1, arreglo);
 
-        listView = (ListView)findViewById(R.id.listAmigos);
+        listView = (ListView)findViewById(R.id.listOpcionesViaje);
         listView.setAdapter(adapter);
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent intent = new Intent(getBaseContext(), UsuarioDetalleActivity.class);
-                intent.putExtra("amigo",arreglo.get(i));
+                Intent intent = new Intent(getBaseContext(), OpcionesViajeDetalleActivity.class);
+                intent.putExtra("opción",arreglo.get(i));
                 startActivity(intent);
             }
         });
@@ -38,8 +39,7 @@ public class AmigosActivity extends AppCompatActivity {
 
     private void llenarLista(){
         for(int i = 0; i < 30 ; i++){
-            arreglo.add("Usuario "+i);
+            arreglo.add("Opción "+i);
         }
     }
 }
-

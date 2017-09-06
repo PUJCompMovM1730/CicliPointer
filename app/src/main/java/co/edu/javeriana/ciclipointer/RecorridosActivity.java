@@ -10,8 +10,8 @@ import java.util.List;
 
 public class RecorridosActivity extends AppCompatActivity {
 
-    List<String> arreglo = new ArrayList<>();
-    ListView listView;
+    private List<String> arreglo = new ArrayList<>();
+    private ListView listView;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

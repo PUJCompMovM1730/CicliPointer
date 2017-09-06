@@ -24,7 +24,13 @@
         <activity android:name=".ProfileActivity" />
         <activity android:name=".RecorridosActivity" />
         <activity android:name=".AmigosActivity" />
-        <activity android:name=".UsuarioDetalleActivity"></activity>
+        <activity android:name=".UsuarioDetalleActivity" />
+        <activity android:name=".NuevaActivity" />
+        <activity android:name=".ViajeActivity" />
+        <activity android:name=".OpcionesViajeActivity" />
+        <activity android:name=".OpcionesViajeDetalleActivity" />
+        <activity android:name=".MisRutasActivity" />
+        <activity android:name=".MisRutasDetalleActivity"></activity>
     </application>
 
 </manifest>

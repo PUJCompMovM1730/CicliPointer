@@ -1,8 +1,10 @@
 EXPLICACIÓN:
 
+Ruta: tiene inicio/destino/tiempo (AL programara ruta donde guarda fecha-hora)?????
+Recorrido: tiene inicio/destino/tiempo/fecha-hora
 
 - Nueva ruta: creadá por el usuario. se guarda en servidor también. (Fecha/Hora, Lugar Inicio/Fin)
-- Mis rutas: rutas creadás por el usuario (Eliminar, Usar, Editar).
+- Mis rutas: rutas creadás por el usuario (Eliminar, Usar).
 - Viajar: Usa rutas sugeridas por el APP.
 
 -Recorridos grupales: un usuario invita a sus amigos a una de sus rutas.

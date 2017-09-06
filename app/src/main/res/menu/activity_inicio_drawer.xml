@@ -14,6 +14,10 @@
             android:id="@+id/nav_mis_rutas"
             android:icon="@drawable/ic_menu_manage"
             android:title="Mis Rutas" />
+        <item
+            android:id="@+id/nav_mis_viajes_grupales"
+            android:icon="@drawable/ic_menu_manage"
+            android:title="Mis Viajes Grupales" />
     </group>
 
     <item android:title="Communícate">

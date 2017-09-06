@@ -8,7 +8,7 @@ import android.widget.Button;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    Button Breccorridos;
+    private Button Breccorridos;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -19,7 +19,7 @@ public class ProfileActivity extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(),RecorridosActivity.class);
-                startActivity(intent);
+                startActivity(intent); // FALTAN DATOS PERFIL, PESO, ALTURA, EDAD
             }
         });
     }

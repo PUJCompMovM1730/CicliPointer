@@ -13,9 +13,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Button;
 
 public class InicioActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
+
+    private Button bNueva;
+    private Button bViaje;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +36,24 @@ public class InicioActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        bNueva = (Button) findViewById(R.id.buttonNueva);
+        bNueva.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), NuevaActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        bViaje = (Button) findViewById(R.id.buttonViaje);
+        bViaje.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), OpcionesViajeActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     @Override
@@ -72,8 +94,11 @@ public class InicioActivity extends AppCompatActivity
             Intent intent = new Intent(getApplicationContext(),AmigosActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_mis_rutas) {
+            Intent intent = new Intent(getApplicationContext(),MisRutasActivity.class);
+            startActivity(intent);
+        } else if (id == R.id.nav_mis_viajes_grupales) {
 
-        }  else if (id == R.id.nav_share) {
+        }else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {
 

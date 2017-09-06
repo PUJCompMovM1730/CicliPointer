@@ -6,7 +6,7 @@ import android.widget.TextView;
 
 public class UsuarioDetalleActivity extends AppCompatActivity {
 
-    TextView nombreUs;
+    private TextView nombreUs;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
