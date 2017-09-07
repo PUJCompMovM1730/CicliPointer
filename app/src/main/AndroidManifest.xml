@@ -30,7 +30,14 @@
         <activity android:name=".OpcionesViajeActivity" />
         <activity android:name=".OpcionesViajeDetalleActivity" />
         <activity android:name=".MisRutasActivity" />
-        <activity android:name=".MisRutasDetalleActivity"></activity>
+        <activity android:name=".MisRutasDetalleActivity" />
+        <activity android:name=".NuevoGrupalActivity" />
+        <activity android:name=".NuevoGrupalDetalleActivity" />
+        <activity android:name=".AmigosGrupalActivity" />
+        <activity android:name=".MisGrupalesActivity" />
+        <activity android:name=".MisGrupalesAnfitrionActivity" />
+        <activity android:name=".MisGrupalesInvitadoActivity" />
+        <activity android:name=".MapInfoActivity"></activity>
     </application>
 
 </manifest>

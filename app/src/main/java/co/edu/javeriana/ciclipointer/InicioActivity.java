@@ -20,6 +20,7 @@ public class InicioActivity extends AppCompatActivity
 
     private Button bNueva;
     private Button bViaje;
+    private Button bGrupal;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,6 +43,15 @@ public class InicioActivity extends AppCompatActivity
             @Override
             public void onClick(View view) {
                 Intent intent = new Intent(getApplicationContext(), NuevaActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        bGrupal = (Button) findViewById(R.id.buttonGrupal);
+        bGrupal.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getApplicationContext(), NuevoGrupalActivity.class);
                 startActivity(intent);
             }
         });
@@ -97,7 +107,8 @@ public class InicioActivity extends AppCompatActivity
             Intent intent = new Intent(getApplicationContext(),MisRutasActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_mis_viajes_grupales) {
-
+            Intent intent = new Intent(getApplicationContext(),MisGrupalesActivity.class);
+            startActivity(intent);
         }else if (id == R.id.nav_share) {
 
         } else if (id == R.id.nav_send) {

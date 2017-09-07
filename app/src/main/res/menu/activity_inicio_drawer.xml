@@ -4,19 +4,19 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_perfil"
-            android:icon="@drawable/ic_menu_camera"
+            android:icon="@drawable/profile"
             android:title="Mi Perfil" />
         <item
             android:id="@+id/nav_amigos"
-            android:icon="@drawable/ic_menu_gallery"
+            android:icon="@drawable/amigos"
             android:title="Amigos" />
         <item
             android:id="@+id/nav_mis_rutas"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/iconomapa"
             android:title="Mis Rutas" />
         <item
             android:id="@+id/nav_mis_viajes_grupales"
-            android:icon="@drawable/ic_menu_manage"
+            android:icon="@drawable/viajesgrupales"
             android:title="Mis Viajes Grupales" />
     </group>
 
