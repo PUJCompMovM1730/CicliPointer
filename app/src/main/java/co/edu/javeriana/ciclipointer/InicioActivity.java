@@ -1,7 +1,9 @@
 package co.edu.javeriana.ciclipointer;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.view.View;
@@ -14,13 +16,29 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Button;
+import android.widget.ImageView;
+import android.widget.TextView;
+import android.widget.Toast;
+
+import com.bumptech.glide.Glide;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.storage.FirebaseStorage;
+import com.google.firebase.storage.StorageReference;
 
 public class InicioActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
-    private Button bNueva;
-    private Button bViaje;
-    private Button bGrupal;
+    private Button bNueva,bViaje,bGrupal;
+    private ImageView barraPerfil;
+    TextView barraNombre,barraCorreo;
+
+    private FirebaseAuth mAuth;
+    private StorageReference mStorageRef;
+    private FirebaseUser user = null;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,6 +55,15 @@ public class InicioActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        barraNombre=  navigationView.getHeaderView(0).findViewById(R.id.barraProfileName);
+        barraPerfil=  navigationView.getHeaderView(0).findViewById(R.id.barraProfileImage);
+        barraCorreo=  navigationView.getHeaderView(0).findViewById(R.id.barraProfileEmail);
+
+        mStorageRef = FirebaseStorage.getInstance().getReference();
+        mAuth =	FirebaseAuth.getInstance();
+
+        cargarInfoBarra();
 
         bNueva = (Button) findViewById(R.id.buttonNueva);
         bNueva.setOnClickListener(new View.OnClickListener() {
@@ -79,16 +106,21 @@ public class InicioActivity extends AppCompatActivity
 
 
     @Override
+    public	boolean onCreateOptionsMenu(Menu	menu){
+        getMenuInflater().inflate(R.menu.menu,	menu);
+        return	true;
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-
-
-        return super.onOptionsItemSelected(item);
+        int itemClicked =	item.getItemId();
+        if(itemClicked ==	R.id.menuLogOut){
+            mAuth.signOut();
+            Intent	intent	=	new	Intent(InicioActivity.this,	MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
+        return	super.onOptionsItemSelected(item);
     }
 
     @SuppressWarnings("StatementWithEmptyBody")
@@ -119,4 +151,35 @@ public class InicioActivity extends AppCompatActivity
         drawer.closeDrawer(GravityCompat.START);
         return true;
     }
+
+    /**
+     * Descripción: carga la información del
+     * usuarios en el header de la barra
+     * @param
+     * @return
+     */
+    private void cargarInfoBarra(){
+        user = FirebaseAuth.getInstance().getCurrentUser();
+        if(user!=null) {
+            barraCorreo.setText(user.getEmail());
+            barraNombre.setText(user.getDisplayName());
+            mStorageRef.child(user.getUid())
+                    .getDownloadUrl().addOnSuccessListener(this, new OnSuccessListener<Uri>() {
+                @Override
+                public void onSuccess(Uri uri) { // guardando esta uri no es necesario volver a buscarla en servidor
+                    Glide.with(InicioActivity.this)
+                            .load(uri)
+                            .fitCenter()
+                            .centerCrop()
+                            .into(barraPerfil);
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception exception) {
+
+                }
+            });
+        }
+    }
+
 }

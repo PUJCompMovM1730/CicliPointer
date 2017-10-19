@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "1045052820818",
+    "firebase_url": "https://ciclipointer.firebaseio.com",
+    "project_id": "ciclipointer",
+    "storage_bucket": "ciclipointer.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1045052820818:android:658ac8f6ce3b0675",
+        "android_client_info": {
+          "package_name": "co.edu.javeriana.ciclipointer"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1045052820818-ovhdr7c991okrtb5ra1b4o5lcnlmudgo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "co.edu.javeriana.ciclipointer",
+            "certificate_hash": "dad4fdac3738ca85375c37725cbfa12547e0b4f9"
+          }
+        },
+        {
+          "client_id": "1045052820818-t36vnoe5oe0vvb6nudrojhnf59jefl81.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAa1plTcm96RM_0HMUSixSnEJWbD070tgc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1045052820818-t36vnoe5oe0vvb6nudrojhnf59jefl81.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

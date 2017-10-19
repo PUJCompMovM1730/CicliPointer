@@ -90,7 +90,7 @@
         app:layout_constraintTop_toBottomOf="@+id/imageView2" />
 
     <Button
-        android:id="@+id/button2"
+        android:id="@+id/Binicio"
         android:layout_width="226dp"
         android:layout_height="53dp"
         android:text="Eliminar"

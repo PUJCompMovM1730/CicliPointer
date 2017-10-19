@@ -1,6 +1,6 @@
 <resources>
     <string name="app_name">Ciclipointer</string>
-    <string name="NombreUsuario">Nombre de usuario</string>
+    <string name="NombreUsuario">Nombre y apellido</string>
     <string name="PasswordUsuario">Contraseña</string>
     <string name="title_activity_inicio">InicioActivity</string>
 

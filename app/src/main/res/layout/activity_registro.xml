@@ -6,6 +6,57 @@
     android:layout_height="match_parent"
     tools:context="co.edu.javeriana.ciclipointer.RegistroActivity">
 
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="160dp"
+        android:layout_height="160dp"
+        android:layout_marginBottom="8dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="232dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/perfil"
+
+        app:layout_constraintBottom_toTopOf="@+id/Bregistro2"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.05" />
+
+    <Button
+        android:id="@+id/Bcamara"
+        android:layout_width="141dp"
+        android:layout_height="42dp"
+        android:layout_marginBottom="65dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorAccent"
+        android:text="Tomar Foto"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.916"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
+    <Button
+        android:id="@+id/Bgaleria"
+        android:layout_width="141dp"
+        android:layout_height="42dp"
+        android:layout_marginBottom="65dp"
+        android:layout_marginLeft="8dp"
+        android:layout_marginRight="8dp"
+        android:layout_marginTop="8dp"
+        android:background="@color/colorAccent"
+        android:text="Seleccionar Imagen"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintHorizontal_bias="0.07"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="1.0" />
+
     <EditText
         android:id="@+id/NombreUsuario"
         android:layout_width="194dp"
@@ -17,20 +68,23 @@
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toRightOf="@+id/textView"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        android:inputType="textPersonName"/>
 
     <EditText
-        android:id="@+id/NombreReal"
+        android:id="@+id/Password2"
         android:layout_width="194dp"
         android:layout_height="41dp"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
         android:layout_marginTop="128dp"
-        android:hint="Nombre real"
+        android:hint="Contraseña"
+        android:inputType="textPassword"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toRightOf="@+id/textView"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
+
 
     <EditText
         android:id="@+id/Correo"
@@ -48,18 +102,19 @@
 
     <TextView
         android:id="@+id/textView"
-        android:layout_width="149dp"
-        android:layout_height="20dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="135dp"
-        android:text="Nombre Real"
+        android:layout_marginTop="139dp"
+        android:text="Repetir contraseña"
+        android:textColor="@color/colorApp"
         android:textSize="18sp"
-        app:layout_constraintHorizontal_bias="0.037"
+        app:layout_constraintHorizontal_bias="0.036"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        android:textColor="@color/colorApp"
+
         />
 
     <TextView
@@ -83,7 +138,7 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="8dp"
         android:layout_marginRight="8dp"
-        android:layout_marginTop="177dp"
+        android:layout_marginTop="186dp"
         android:text="Correo"
         android:textSize="18sp"
         app:layout_constraintHorizontal_bias="0.025"
@@ -115,6 +170,7 @@
         android:layout_marginRight="8dp"
         android:layout_marginTop="77dp"
         android:hint="Contraseña"
+        android:inputType="textPassword"
         android:password="true"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintLeft_toRightOf="@+id/textView"
@@ -124,8 +180,8 @@
 
     <Button
         android:id="@+id/Bregistro2"
-        android:layout_width="354dp"
-        android:layout_height="62dp"
+        android:layout_width="251dp"
+        android:layout_height="36dp"
         android:text="Registro"
         android:background="@color/colorApp"
         android:layout_marginRight="8dp"
@@ -136,5 +192,7 @@
         android:layout_marginBottom="8dp"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="8dp"
-        app:layout_constraintVertical_bias="0.893" />
+        app:layout_constraintVertical_bias="0.982"
+        app:layout_constraintHorizontal_bias="0.504"
+        android:textSize="25sp"/>
 </android.support.constraint.ConstraintLayout>
