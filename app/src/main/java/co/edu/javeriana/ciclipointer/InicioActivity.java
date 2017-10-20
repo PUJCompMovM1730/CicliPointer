@@ -98,6 +98,7 @@ public class InicioActivity extends AppCompatActivity
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         if (drawer.isDrawerOpen(GravityCompat.START)) {
             drawer.closeDrawer(GravityCompat.START);
+            startActivity(new Intent(this,MainActivity.class));
         } else {
             super.onBackPressed();
         }
