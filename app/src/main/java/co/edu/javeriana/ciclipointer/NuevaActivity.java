@@ -18,5 +18,6 @@ public class NuevaActivity extends AppCompatActivity {
         bYa = (Button) findViewById(R.id.buttonUsarMr);
         bProgramar = (Button) findViewById(R.id.buttonEliminarMr); // se debe seleccionar Hora/Fecha de inicio
         bGuardar = (Button) findViewById(R.id.buttonGuardar); // solo aparece al llegar al destino
+        // map mostrar usuarios cercanos a 1km y ver como guardar recorrido
     }
 }

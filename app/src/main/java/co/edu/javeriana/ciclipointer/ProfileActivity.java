@@ -2,15 +2,18 @@ package co.edu.javeriana.ciclipointer;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.icu.util.BuddhistCalendar;
 import android.net.Uri;
 import android.provider.MediaStore;
+import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -26,6 +29,8 @@ import android.widget.Toast;
 import com.bumptech.glide.Glide;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -45,14 +50,17 @@ import entities.Usuario;
 
 public class ProfileActivity extends AppCompatActivity {
 
-    private Button Breccorridos,Bupdate;
-    private EditText Pnombre,  Ppeso,Paltura,Prh,Pedad;
-    private TextView Pcorreo;
-    private String nombre,RH,Anombre,ARH;
+    private Button Breccorridos,Bupdate, button;
+    private EditText Pnombre,  Ppeso,Paltura,Prh,Pedad,Pcorreo,
+    Pcontraseña, Pcontraseña2,pass;
+    private String nombre,RH,Anombre,ARH,correo,Acorreo,
+    contraseña,contraseña2,password;
     private int peso,edad,Apeso,Aedad;
     private double altura,Aaltura;
     private ImageView Ppicture;
-    private boolean camAuth = false, camDatabase = false;
+    private boolean camAuth = false, camDatabase = false,
+                    camPicture = false, camCorreo = false,
+                    camContra = false;
     private UserProfileChangeRequest.Builder upcrb = null;
 
     private FirebaseAuth mAuth;
@@ -62,6 +70,7 @@ public class ProfileActivity extends AppCompatActivity {
     private DatabaseReference myRef;
     private boolean valor = false;
     private ProgressDialog mProgressDialog;
+    private AlertDialog dialog;
 
     private final int MY_PERMISSIONS_REQUEST_CAMARA = 1;
     private final int IMAGE_PICKER_REQUEST = 2;
@@ -72,6 +81,7 @@ public class ProfileActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_profile);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
         Breccorridos = (Button) findViewById(R.id.Brecorridos);
         Breccorridos.setOnClickListener(new View.OnClickListener() {
@@ -84,12 +94,14 @@ public class ProfileActivity extends AppCompatActivity {
 
         mProgressDialog = new ProgressDialog(this);
         Pnombre = (EditText) findViewById(R.id.PNombreUsuario);
-        Pcorreo = (TextView) findViewById(R.id.PCorreo);
+        Pcorreo = (EditText) findViewById(R.id.PCorreo);
         Ppeso = (EditText) findViewById(R.id.PPeso);
         Paltura = (EditText) findViewById(R.id.PAltura);
         Prh = (EditText) findViewById(R.id.PRh);
         Pedad = (EditText) findViewById(R.id.PEdad);
         Ppicture = (ImageView) findViewById(R.id.PImageView);
+        Pcontraseña = (EditText) findViewById(R.id.Pcontraseña);
+        Pcontraseña2 = (EditText) findViewById(R.id.Pcontraseña2);
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mAuth =	FirebaseAuth.getInstance();
@@ -147,6 +159,12 @@ public class ProfileActivity extends AppCompatActivity {
         startActivity(new Intent(this,InicioActivity.class));
     }
 
+    /**
+     * Descripción: carga información del usuario
+     * y la muestra.
+     * @param
+     * @return
+     */
     private void cargarInfo(){
         user = FirebaseAuth.getInstance().getCurrentUser();
         if(user!=null) {
@@ -155,6 +173,7 @@ public class ProfileActivity extends AppCompatActivity {
             mProgressDialog.setCancelable(false);
             mProgressDialog.show();
             Pcorreo.setText(user.getEmail());
+            Acorreo = user.getEmail();
             Anombre = user.getDisplayName();
             Pnombre.setText(Anombre);
             myRef.child("users/"+user.getUid()).addListenerForSingleValueEvent(new	ValueEventListener(){
@@ -211,17 +230,60 @@ public class ProfileActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * Descripción: valida los datos ingresados
+     * por el usuario para su posterior actualización.
+     * @param
+     * @return true si todos cumple formato.
+     */
     private boolean validateForm(){
         boolean cam = true;
         if(valor){
+            contraseña = Pcontraseña.getText().toString();
+            contraseña2 = Pcontraseña2.getText().toString();
+            if(!TextUtils.isEmpty(contraseña)||!TextUtils.isEmpty(contraseña2)){
+                if(!TextUtils.isEmpty(contraseña2)&&!TextUtils.isEmpty(contraseña)){
+                    if(contraseña.equals(contraseña2)){
+                        if(contraseña.length()<8){
+                            Pcontraseña.setError("Min 8 caracteres");
+                            Pcontraseña2.setError("Min 8 caracteres");
+                            cam = false;
+                        }else{
+                            camContra = true;
+                        }
+                    }else{
+                        Pcontraseña2.setError("No coinciden");
+                        Pcontraseña.setError("No coinciden");
+                        cam = false;
+                    }
+                }else{
+                    cam = false;
+                    if(TextUtils.isEmpty(contraseña))
+                        Pcontraseña.setError("Required.");
+                    else
+                        Pcontraseña2.setError("Required.");
+                }
+            }
+            correo = Pcorreo.getText().toString();
+            if	(TextUtils.isEmpty(correo))	{
+                Pcorreo.setError("Required.");
+                cam	= false;
+            }else{
+                if(!Patterns.EMAIL_ADDRESS.matcher(correo).matches()){
+                    cam	=	false;
+                    Pcorreo.setError("Format required.");
+                }else
+                    Pcorreo.setError(null);
+            }
             nombre = Pnombre.getText().toString();
             if	(TextUtils.isEmpty(nombre))	 {
                 Pnombre.setError("Required.");
                 cam	= false;
             }	else	{
                 Pnombre.setError(null);
+            }
             RH = Prh.getText().toString();
-            }if	(TextUtils.isEmpty(RH))	 {
+            if	(TextUtils.isEmpty(RH))	 {
                 Prh.setError("Required.");
                 cam	= false;
             }	else	{
@@ -282,15 +344,27 @@ public class ProfileActivity extends AppCompatActivity {
         return cam;
     }
 
+    /**
+     * Descripción: verifica que el usuario haya hecho
+     * cambios en los datos.
+     * @param
+     * @return false si el usuario no hizo cambios.
+     */
     private boolean cambios(){
         boolean cam = false;
+        if(camContra)
+            cam = true;
+        if(!correo.equalsIgnoreCase(Acorreo)){
+            cam = true;
+            camCorreo = true;
+        }
         if(!nombre.equalsIgnoreCase(Anombre)){
             cam = true;
             camAuth = true;
         }
         if(profileUri!=null){
             cam = true;
-            camAuth = true;
+            camPicture = true;
         }
         if(!RH.equalsIgnoreCase(ARH)){
             cam = true;
@@ -311,10 +385,14 @@ public class ProfileActivity extends AppCompatActivity {
         return cam;
     }
 
+    /**
+     * Descripción: actualiza la información
+     * según los cambios del usuario.
+     * @param
+     * @return
+     */
     private void update(){
-        if(camAuth){
-            upcrb = new UserProfileChangeRequest.Builder();
-            upcrb.setDisplayName(nombre);
+        if(camPicture){
             if (profileUri != null) {
                 mProgressDialog.setTitle("Subiendo...");
                 mProgressDialog.setMessage("Subiendo foto al servidor");
@@ -329,34 +407,109 @@ public class ProfileActivity extends AppCompatActivity {
                                 Toast.makeText(ProfileActivity.this, "Correcto subir imagen", Toast.LENGTH_SHORT).show();
                                 mProgressDialog.dismiss();
                                 profileUri = null;
+                                camPicture = false;
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {
                             @Override
                             public void onFailure(@NonNull Exception exception) {
                                 profileUri = null;
-                                Toast.makeText(ProfileActivity.this, "Error al subir imagen", Toast.LENGTH_SHORT).show();
+                                camPicture = false;
+                                Toast.makeText(ProfileActivity.this, "Error al subir imagen, vuelva a cargarla", Toast.LENGTH_SHORT).show();
                             }
                         });
             }
+        }if(camAuth){
+            upcrb = new UserProfileChangeRequest.Builder();
+            upcrb.setDisplayName(nombre);
             user = mAuth.getCurrentUser();
             user.updateProfile(upcrb.build())
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Toast.makeText(ProfileActivity.this, "Se actualizó información principal", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ProfileActivity.this, "Se actualizó nombre", Toast.LENGTH_SHORT).show();
+                            Anombre = nombre;
+                            camAuth = false;
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                         @Override
                         public void onFailure(@NonNull Exception exception) {
-                            profileUri = null;
-                            Toast.makeText(ProfileActivity.this, "Error actualizando "+exception.getMessage().toString(),
+                            Toast.makeText(ProfileActivity.this, "Error actualizando nombre "+exception.getMessage().toString(),
                                     Toast.LENGTH_SHORT).show();
-                            upcrb.setPhotoUri(null);
                         }
                     });
+        }if(camCorreo){
+            user = mAuth.getCurrentUser();
+            user.updateEmail(correo).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(ProfileActivity.this, "Se actualizó correo", Toast.LENGTH_SHORT).show();
+                    Acorreo = correo;
+                    camCorreo = false;
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    String error = e.getMessage().toString();
+                    if(error.equals("The email address is already in use by another account.")){
+                        Toast.makeText(ProfileActivity.this, "El correo ya está en uso", Toast.LENGTH_LONG).show();
+                    }else if(error.equals("This operation is sensitive and requires recent authentication. " +
+                            "Log in again before retrying this request.")){
+                        Toast.makeText(ProfileActivity.this, "Debe autenticarse de nuevo para hacer " +
+                                "el cambio de correo", Toast.LENGTH_LONG).show();
+                        AlertDialog.Builder mBuilder = new AlertDialog.Builder(ProfileActivity.this);
+                        View mView = getLayoutInflater().inflate(R.layout.dialog_reauth,null);
+                        mBuilder.setView(mView);
+                        dialog = mBuilder.create();
+                        dialog.show();
+                        pass = (EditText) mView.findViewById(R.id.PcontraActual);
+                        button = (Button) mView.findViewById(R.id.buttonActual);
+                        button.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                password = pass.getText().toString();
+                                if(TextUtils.isEmpty(password)){
+                                    pass.setError("Required.");
+                                }else {
+                                    pass.setError(null);
+                                    dialog.dismiss();
+                                    AuthCredential credential = EmailAuthProvider.getCredential(Acorreo,password);
+                                    user.reauthenticate(credential)
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    user.updateEmail(correo).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                        @Override
+                                                        public void onSuccess(Void aVoid) {
+                                                            Toast.makeText(ProfileActivity.this, "Se actualizó correo", Toast.LENGTH_SHORT).show();
+                                                            Acorreo = correo;
+                                                            camCorreo = false;
+                                                        }
+                                                    }).addOnFailureListener(new OnFailureListener() {
+                                                        @Override
+                                                        public void onFailure(@NonNull Exception e) {
+                                                            Toast.makeText(ProfileActivity.this, "Intente de nuevo actualizar correo", Toast.LENGTH_SHORT).show();
+                                                        }
+                                                    });
+                                                }
+                                            }).addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception e) {
+                                            Toast.makeText(ProfileActivity.this, "Error autenticación "+e.getMessage().toString(),
+                                                    Toast.LENGTH_LONG).show();
+                                        }
+                                    });
+                                }
+                            }
+                        });
 
+                    }else{
+                        Toast.makeText(ProfileActivity.this, "Error correo: "+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+                    }
+
+                }
+            });
         }if(camDatabase){
             Usuario us = new Usuario();
             us.setAltura(altura);
@@ -368,15 +521,107 @@ public class ProfileActivity extends AppCompatActivity {
                     .addOnSuccessListener(new OnSuccessListener<Void>() {
                         @Override
                         public void onSuccess(Void aVoid) {
-                            Toast.makeText(ProfileActivity.this, "Se actualizó información secundaria",
+                            Toast.makeText(ProfileActivity.this, "Se actualizó información física",
                                     Toast.LENGTH_SHORT).show();
+                            Aaltura = altura;
+                            Aedad = edad;
+                            Apeso = peso;
+                            ARH = RH;
+                            camDatabase = false;
                         }
                     })
                     .addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
-                    Toast.makeText(ProfileActivity.this, "Error guardar datos en servidor "+exception.getMessage().toString(),
+                    Toast.makeText(ProfileActivity.this, "Error guardar información física "+exception.getMessage().toString(),
                             Toast.LENGTH_SHORT).show();
+                }
+            });
+        }if(camContra){
+            user = mAuth.getCurrentUser();
+            user.updatePassword(contraseña).addOnSuccessListener(new OnSuccessListener<Void>() {
+                @Override
+                public void onSuccess(Void aVoid) {
+                    Toast.makeText(ProfileActivity.this, "Se actualizó contraseña", Toast.LENGTH_SHORT).show();
+                    contraseña = "";
+                    contraseña2 = "";
+                    Pcontraseña2.setError(null);
+                    Pcontraseña.setError(null);
+                    Pcontraseña.setText("");
+                    Pcontraseña2.setText("");
+                    camContra = false;
+                }
+            }).addOnFailureListener(new OnFailureListener() {
+                @Override
+                public void onFailure(@NonNull Exception e) {
+                    String error = e.getMessage().toString();
+                    if(error.equals("This operation is sensitive and requires recent authentication. " +
+                            "Log in again before retrying this request.")){
+                        Toast.makeText(ProfileActivity.this, "Debe autenticarse para hacer " +
+                                "el cambio de la contraseña", Toast.LENGTH_LONG).show();
+                        AlertDialog.Builder mBuilder = new AlertDialog.Builder(ProfileActivity.this);
+                        View mView = getLayoutInflater().inflate(R.layout.dialog_reauth,null);
+                        mBuilder.setView(mView);
+                        dialog = mBuilder.create();
+                        dialog.show();
+                        pass = (EditText) mView.findViewById(R.id.PcontraActual);
+                        button = (Button) mView.findViewById(R.id.buttonActual);
+                        button.setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View view) {
+                                password = pass.getText().toString();
+                                if(TextUtils.isEmpty(password)){
+                                    pass.setError("Required.");
+                                }else {
+                                    pass.setError(null);
+                                    dialog.dismiss();
+                                    if(!password.equals(contraseña)){
+                                        AuthCredential credential = EmailAuthProvider.getCredential(Acorreo,password);
+                                        user.reauthenticate(credential)
+                                                .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                    @Override
+                                                    public void onSuccess(Void aVoid) {
+                                                        user.updatePassword(contraseña).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                            @Override
+                                                            public void onSuccess(Void aVoid) {
+                                                                Toast.makeText(ProfileActivity.this, "Se actualizó contraseña",
+                                                                        Toast.LENGTH_SHORT).show();
+                                                                contraseña = "";
+                                                                contraseña2 = "";
+                                                                Pcontraseña2.setError(null);
+                                                                Pcontraseña.setError(null);
+                                                                Pcontraseña.setText("");
+                                                                Pcontraseña2.setText("");
+                                                                camContra = false;
+                                                            }
+                                                        }).addOnFailureListener(new OnFailureListener() {
+                                                            @Override
+                                                            public void onFailure(@NonNull Exception e) {
+                                                                Toast.makeText(ProfileActivity.this, "Intente de nuevo actualizar contraseña",
+                                                                        Toast.LENGTH_SHORT).show();
+                                                            }
+                                                        });
+                                                    }
+                                                }).addOnFailureListener(new OnFailureListener() {
+                                            @Override
+                                            public void onFailure(@NonNull Exception e) {
+                                                Toast.makeText(ProfileActivity.this, "Error autenticación "+e.getMessage().toString(),
+                                                        Toast.LENGTH_LONG).show();
+                                            }
+                                        });
+                                    }else{
+                                        Toast.makeText(ProfileActivity.this, "Contraseña no debe ser igual a la anterior",
+                                                Toast.LENGTH_LONG).show();
+                                    }
+
+                                }
+                            }
+                        });
+
+                    }else{
+                        Toast.makeText(ProfileActivity.this, "Error contraseña: "+e.getMessage().toString(), Toast.LENGTH_LONG).show();
+                    }
+
                 }
             });
         }
