@@ -213,6 +213,7 @@ public class RegistroActivity extends AppCompatActivity {
                                                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                                     Toast.makeText(RegistroActivity.this, "Correcto subir imagen", Toast.LENGTH_SHORT).show();
                                                     mProgressDialog.dismiss();
+                                                    upcrb.setPhotoUri(profileUri);
                                                     profileUri = null;
                                                 }
                                             })
@@ -220,24 +221,40 @@ public class RegistroActivity extends AppCompatActivity {
                                                 @Override
                                                 public void onFailure(@NonNull Exception exception) {
                                                     profileUri = null;
+                                                    upcrb.setPhotoUri(profileUri);
                                                     Toast.makeText(RegistroActivity.this, "Error al subir imagen", Toast.LENGTH_SHORT).show();
-                                                    upcrb.setPhotoUri(null);
                                                 }
                                             });
                                 } else {
-                                    Toast.makeText(RegistroActivity.this, "Seleccione una imagen", Toast.LENGTH_SHORT).show();
+                                    Toast.makeText(RegistroActivity.this, "Seleccione una imagen de perfil", Toast.LENGTH_SHORT).show();
                                 }
-                                user.updateProfile(upcrb.build());
-                                if (guardarDataBase()) {
-                                    dbBoolean = true;
-                                    startActivity(new Intent(RegistroActivity.this, InicioActivity.class));
-                                }else{
-                                    Toast.makeText(RegistroActivity.this, "Vuelva a intentarlo", Toast.LENGTH_SHORT).show();
-                                }
+                                user.updateProfile(upcrb.build()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                    @Override
+                                    public void onSuccess(Void aVoid) {
+                                        if (guardarDataBase()) {
+                                            dbBoolean = true;
+                                            startActivity(new Intent(RegistroActivity.this, InicioActivity.class));
+                                        }else{
+                                            Toast.makeText(RegistroActivity.this, "Vuelva a intentarlo", Toast.LENGTH_SHORT).show();
+                                        }
+                                    }
+                                }).addOnFailureListener(new OnFailureListener() {
+                                    @Override
+                                    public void onFailure(@NonNull Exception e) {
+                                        Toast.makeText(RegistroActivity.this, "Vuelva a intentarlo", Toast.LENGTH_SHORT).show();
+                                        upcrb.setPhotoUri(null);
+                                    }
+                                });
+
                             }
                         }
                         if	(!task.isSuccessful())	 {
-                            Toast.makeText(RegistroActivity.this, "Error al registrar " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                            String error = task.getException().getMessage().toString();
+                            if(error.equals("The email address is already in use by another account.")){
+                                Toast.makeText(RegistroActivity.this, "El correo ya está registrado por otro usuario" , Toast.LENGTH_LONG).show();
+                            }else
+                            System.err.println("error: "+error);
+
                         }
                     }
                 });

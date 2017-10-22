@@ -71,6 +71,7 @@ public class ProfileActivity extends AppCompatActivity {
     private boolean valor = false;
     private ProgressDialog mProgressDialog;
     private AlertDialog dialog;
+    private Uri uri_anterior;
 
     private final int MY_PERMISSIONS_REQUEST_CAMARA = 1;
     private final int IMAGE_PICKER_REQUEST = 2;
@@ -208,25 +209,27 @@ public class ProfileActivity extends AppCompatActivity {
             mProgressDialog.setMessage("Cargando foto del servidor");
             mProgressDialog.setCancelable(false);
             mProgressDialog.show();
-            mStorageRef.child(user.getUid())
-                    .getDownloadUrl().addOnSuccessListener(this, new OnSuccessListener<Uri>() {
-                @Override
-                public void onSuccess(Uri uri) { // guardando esta uri no es necesario volver a buscarla en servidor
-                    Glide.with(ProfileActivity.this)
-                            .load(uri)
-                            .fitCenter()
-                            .centerCrop()
-                            .into(Ppicture);
-                    valor = true;
-                    mProgressDialog.dismiss();
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    valor = false;
-                    mProgressDialog.dismiss();
-                }
-            });
+            if(user.getPhotoUrl()!=null){
+                mStorageRef.child(user.getUid())
+                        .getDownloadUrl().addOnSuccessListener(this, new OnSuccessListener<Uri>() {
+                    @Override
+                    public void onSuccess(Uri uri) {
+                        Glide.with(ProfileActivity.this)
+                                .load(uri)
+                                .fitCenter()
+                                .centerCrop()
+                                .into(Ppicture);
+                        valor = true;
+                        mProgressDialog.dismiss();
+                    }
+                }).addOnFailureListener(new OnFailureListener() {
+                    @Override
+                    public void onFailure(@NonNull Exception exception) {
+                        valor = false;
+                        mProgressDialog.dismiss();
+                    }
+                });
+            }
         }
     }
 
@@ -406,8 +409,47 @@ public class ProfileActivity extends AppCompatActivity {
                             public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
                                 Toast.makeText(ProfileActivity.this, "Correcto subir imagen", Toast.LENGTH_SHORT).show();
                                 mProgressDialog.dismiss();
-                                profileUri = null;
+
                                 camPicture = false;
+                                if(camAuth){
+                                    upcrb = new UserProfileChangeRequest.Builder();
+                                    upcrb.setDisplayName(nombre);
+                                    user = mAuth.getCurrentUser();
+                                    uri_anterior = user.getPhotoUrl();
+                                    upcrb.setPhotoUri(profileUri);
+                                    user.updateProfile(upcrb.build())
+                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                @Override
+                                                public void onSuccess(Void aVoid) {
+                                                    Toast.makeText(ProfileActivity.this, "Se actualizó nombre", Toast.LENGTH_SHORT).show();
+                                                    Anombre = nombre;
+                                                    camAuth = false;
+                                                }
+                                            })
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception exception) {
+                                                    Toast.makeText(ProfileActivity.this, "Error actualizando nombre "+exception.getMessage().toString(),
+                                                            Toast.LENGTH_SHORT).show();
+                                                    upcrb.setPhotoUri(uri_anterior);
+                                                }
+                                            });
+                                }else{
+                                    upcrb = new UserProfileChangeRequest.Builder();
+                                    user = mAuth.getCurrentUser();
+                                    uri_anterior = user.getPhotoUrl();
+                                    upcrb.setPhotoUri(profileUri);
+                                    user.updateProfile(upcrb.build())
+                                            .addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception exception) {
+                                                    Toast.makeText(ProfileActivity.this, "Error actualizando imagen"+exception.getMessage().toString(),
+                                                            Toast.LENGTH_SHORT).show();
+                                                    upcrb.setPhotoUri(uri_anterior);
+                                                }
+                                            });
+                                }
+                                profileUri = null;
                             }
                         })
                         .addOnFailureListener(new OnFailureListener() {

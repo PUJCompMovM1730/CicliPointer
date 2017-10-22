@@ -143,9 +143,16 @@ public class MainActivity extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (!task.isSuccessful()) {
-                            Toast.makeText(MainActivity.this, "Fallo en la autenticación "+task.getException(), Toast.LENGTH_SHORT).show();
-                            user.setText("");
-                            mpassword.setText("");
+                            String error = task.getException().getMessage().toString();
+                            if(error.contains("The password is invalid or the user does not have a password")){
+                                Toast.makeText(MainActivity.this, "Usuario inválido o contraseña incorrecta ", Toast.LENGTH_LONG).show();
+                                mpassword.setText("");
+                            }else{
+                                Toast.makeText(MainActivity.this, "Fallo en la autenticación "+task.getException().getMessage().toString(), Toast.LENGTH_LONG).show();
+                                user.setText("");
+                                mpassword.setText("");
+                            }
+
                         }else autentication = true;
                     }
                 });
