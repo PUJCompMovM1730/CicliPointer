@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
 
-public class OpcionesViajeDetalleActivity extends AppCompatActivity {
+public class ViajeProgramadoActivity extends AppCompatActivity {
 
     private Button bYa;
     private Button bProgramar;
@@ -15,8 +15,9 @@ public class OpcionesViajeDetalleActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_opciones_viaje_detalle);
+        setContentView(R.layout.activity_viaje_programado);
 
+        // mapa viaje programado
         Opcion = (TextView) findViewById(R.id.textViewMruta);
         Opcion.setText(getIntent().getStringExtra("opción"));
         bYa = (Button) findViewById(R.id.buttonUsarMr);

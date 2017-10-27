@@ -3,4 +3,7 @@
     <item
         android:id="@+id/menuLogOut"
         android:title="Cerrar Sesión"	/>
+    <item
+        android:id="@+id/menuAmistad"
+        android:title="Solicitudes de amistad"	/>
 </menu>

@@ -53,6 +53,7 @@ public class ProfileActivity extends AppCompatActivity {
     private Button Breccorridos,Bupdate, button;
     private EditText Pnombre,  Ppeso,Paltura,Prh,Pedad,Pcorreo,
     Pcontraseña, Pcontraseña2,pass;
+    private TextView Pkm;
     private String nombre,RH,Anombre,ARH,correo,Acorreo,
     contraseña,contraseña2,password;
     private int peso,edad,Apeso,Aedad;
@@ -72,6 +73,7 @@ public class ProfileActivity extends AppCompatActivity {
     private ProgressDialog mProgressDialog;
     private AlertDialog dialog;
     private Uri uri_anterior;
+
 
     private final int MY_PERMISSIONS_REQUEST_CAMARA = 1;
     private final int IMAGE_PICKER_REQUEST = 2;
@@ -95,6 +97,7 @@ public class ProfileActivity extends AppCompatActivity {
 
         mProgressDialog = new ProgressDialog(this);
         Pnombre = (EditText) findViewById(R.id.PNombreUsuario);
+        Pkm = (TextView) findViewById(R.id.textViewkm);
         Pcorreo = (EditText) findViewById(R.id.PCorreo);
         Ppeso = (EditText) findViewById(R.id.PPeso);
         Paltura = (EditText) findViewById(R.id.PAltura);
@@ -188,6 +191,7 @@ public class ProfileActivity extends AppCompatActivity {
                         Pedad.setText(myUser.getEdad()+"");
                         Paltura.setText(myUser.getAltura()+"");
                         Prh.setText(myUser.getRH());
+                        Pkm.setText(myUser.getKm()+"");
                         Apeso = myUser.getPeso();
                         Aaltura = myUser.getAltura();
                         ARH = myUser.getRH();
@@ -229,7 +233,8 @@ public class ProfileActivity extends AppCompatActivity {
                         mProgressDialog.dismiss();
                     }
                 });
-            }
+            }else
+                Toast.makeText(this, "No tiene foto", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -362,6 +367,7 @@ public class ProfileActivity extends AppCompatActivity {
             camCorreo = true;
         }
         if(!nombre.equalsIgnoreCase(Anombre)){
+            nombre = nombre.toUpperCase();
             cam = true;
             camAuth = true;
         }
@@ -423,6 +429,43 @@ public class ProfileActivity extends AppCompatActivity {
                                                 public void onSuccess(Void aVoid) {
                                                     Toast.makeText(ProfileActivity.this, "Se actualizó nombre", Toast.LENGTH_SHORT).show();
                                                     Anombre = nombre;
+
+                                                    Usuario us = new Usuario();
+                                                    us.setAltura(altura);
+                                                    us.setEdad(edad);
+                                                    us.setPeso(peso);
+                                                    us.setRH(RH);
+                                                    if(camCorreo) {
+                                                        us.setCorreo(correo);
+                                                    }else{
+                                                        us.setCorreo(Acorreo);
+                                                    }
+                                                    if(camAuth) {
+                                                        us.setNombre(nombre);
+                                                    }else{
+                                                        us.setNombre(Anombre);
+                                                    }
+                                                    myRef.child("users/"+mAuth.getCurrentUser().getUid())
+                                                            .setValue(us)
+                                                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                @Override
+                                                                public void onSuccess(Void aVoid) {
+                                                                    Toast.makeText(ProfileActivity.this, "Se actualizó información física",
+                                                                            Toast.LENGTH_SHORT).show();
+                                                                    Aaltura = altura;
+                                                                    Aedad = edad;
+                                                                    Apeso = peso;
+                                                                    ARH = RH;
+                                                                    camDatabase = false;
+                                                                }
+                                                            })
+                                                            .addOnFailureListener(new OnFailureListener() {
+                                                                @Override
+                                                                public void onFailure(@NonNull Exception exception) {
+                                                                    Toast.makeText(ProfileActivity.this, "Error guardar información física "+exception.getMessage().toString(),
+                                                                            Toast.LENGTH_SHORT).show();
+                                                                }
+                                                            });
                                                     camAuth = false;
                                                 }
                                             })
@@ -432,6 +475,7 @@ public class ProfileActivity extends AppCompatActivity {
                                                     Toast.makeText(ProfileActivity.this, "Error actualizando nombre "+exception.getMessage().toString(),
                                                             Toast.LENGTH_SHORT).show();
                                                     upcrb.setPhotoUri(uri_anterior);
+
                                                 }
                                             });
                                 }else{
@@ -471,6 +515,42 @@ public class ProfileActivity extends AppCompatActivity {
                         public void onSuccess(Void aVoid) {
                             Toast.makeText(ProfileActivity.this, "Se actualizó nombre", Toast.LENGTH_SHORT).show();
                             Anombre = nombre;
+                            Usuario us = new Usuario();
+                            us.setAltura(altura);
+                            us.setEdad(edad);
+                            us.setPeso(peso);
+                            us.setRH(RH);
+                            if(camCorreo) {
+                                us.setCorreo(correo);
+                            }else{
+                                us.setCorreo(Acorreo);
+                            }
+                            if(camAuth) {
+                                us.setNombre(nombre);
+                            }else{
+                                us.setNombre(Anombre);
+                            }
+                            myRef.child("users/"+mAuth.getCurrentUser().getUid())
+                                    .setValue(us)
+                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Toast.makeText(ProfileActivity.this, "Se actualizó información física",
+                                                    Toast.LENGTH_SHORT).show();
+                                            Aaltura = altura;
+                                            Aedad = edad;
+                                            Apeso = peso;
+                                            ARH = RH;
+                                            camDatabase = false;
+                                        }
+                                    })
+                                    .addOnFailureListener(new OnFailureListener() {
+                                        @Override
+                                        public void onFailure(@NonNull Exception exception) {
+                                            Toast.makeText(ProfileActivity.this, "Error guardar información física "+exception.getMessage().toString(),
+                                                    Toast.LENGTH_SHORT).show();
+                                        }
+                                    });
                             camAuth = false;
                         }
                     })
@@ -488,6 +568,43 @@ public class ProfileActivity extends AppCompatActivity {
                 public void onSuccess(Void aVoid) {
                     Toast.makeText(ProfileActivity.this, "Se actualizó correo", Toast.LENGTH_SHORT).show();
                     Acorreo = correo;
+
+                    Usuario us = new Usuario();
+                    us.setAltura(altura);
+                    us.setEdad(edad);
+                    us.setPeso(peso);
+                    us.setRH(RH);
+                    if(camCorreo) {
+                        us.setCorreo(correo);
+                    }else{
+                        us.setCorreo(Acorreo);
+                    }
+                    if(camAuth) {
+                        us.setNombre(nombre);
+                    }else{
+                        us.setNombre(Anombre);
+                    }
+                    myRef.child("users/"+mAuth.getCurrentUser().getUid())
+                            .setValue(us)
+                            .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                @Override
+                                public void onSuccess(Void aVoid) {
+                                    Toast.makeText(ProfileActivity.this, "Se actualizó información física",
+                                            Toast.LENGTH_SHORT).show();
+                                    Aaltura = altura;
+                                    Aedad = edad;
+                                    Apeso = peso;
+                                    ARH = RH;
+                                    camDatabase = false;
+                                }
+                            })
+                            .addOnFailureListener(new OnFailureListener() {
+                                @Override
+                                public void onFailure(@NonNull Exception exception) {
+                                    Toast.makeText(ProfileActivity.this, "Error guardar información física "+exception.getMessage().toString(),
+                                            Toast.LENGTH_SHORT).show();
+                                }
+                            });
                     camCorreo = false;
                 }
             }).addOnFailureListener(new OnFailureListener() {
@@ -526,6 +643,42 @@ public class ProfileActivity extends AppCompatActivity {
                                                         public void onSuccess(Void aVoid) {
                                                             Toast.makeText(ProfileActivity.this, "Se actualizó correo", Toast.LENGTH_SHORT).show();
                                                             Acorreo = correo;
+                                                            Usuario us = new Usuario();
+                                                            us.setAltura(altura);
+                                                            us.setEdad(edad);
+                                                            us.setPeso(peso);
+                                                            us.setRH(RH);
+                                                            if(camCorreo) {
+                                                                us.setCorreo(correo);
+                                                            }else{
+                                                                us.setCorreo(Acorreo);
+                                                            }
+                                                            if(camAuth) {
+                                                                us.setNombre(nombre);
+                                                            }else{
+                                                                us.setNombre(Anombre);
+                                                            }
+                                                            myRef.child("users/"+mAuth.getCurrentUser().getUid())
+                                                                    .setValue(us)
+                                                                    .addOnSuccessListener(new OnSuccessListener<Void>() {
+                                                                        @Override
+                                                                        public void onSuccess(Void aVoid) {
+                                                                            Toast.makeText(ProfileActivity.this, "Se actualizó información física",
+                                                                                    Toast.LENGTH_SHORT).show();
+                                                                            Aaltura = altura;
+                                                                            Aedad = edad;
+                                                                            Apeso = peso;
+                                                                            ARH = RH;
+                                                                            camDatabase = false;
+                                                                        }
+                                                                    })
+                                                                    .addOnFailureListener(new OnFailureListener() {
+                                                                        @Override
+                                                                        public void onFailure(@NonNull Exception exception) {
+                                                                            Toast.makeText(ProfileActivity.this, "Error guardar información física "+exception.getMessage().toString(),
+                                                                                    Toast.LENGTH_SHORT).show();
+                                                                        }
+                                                                    });
                                                             camCorreo = false;
                                                         }
                                                     }).addOnFailureListener(new OnFailureListener() {
@@ -558,6 +711,20 @@ public class ProfileActivity extends AppCompatActivity {
             us.setEdad(edad);
             us.setPeso(peso);
             us.setRH(RH);
+            if(camCorreo) {
+                us.setCorreo(correo);
+                System.out.println("cambio correo");
+            }else{
+                us.setCorreo(Acorreo);
+            }
+            if(camAuth) {
+                us.setNombre(nombre);
+                System.out.println("cambio nombre true 3"+nombre);
+                System.out.println("cambio nombre");
+            }else{
+                System.out.println("cambio nombre false 3");
+                us.setNombre(Anombre);
+            }
             myRef.child("users/"+mAuth.getCurrentUser().getUid())
                     .setValue(us)
                     .addOnSuccessListener(new OnSuccessListener<Void>() {

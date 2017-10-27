@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="co.edu.javeriana.ciclipointer.OpcionesViajeActivity">
+    tools:context="co.edu.javeriana.ciclipointer.ProgramarViajeActivity">
 
     <SearchView
         android:layout_width="389dp"

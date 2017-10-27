@@ -18,7 +18,7 @@ public class ViajeActivity extends AppCompatActivity {
         Bopciones.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(),OpcionesViajeActivity.class);
+                Intent intent = new Intent(getApplicationContext(),ProgramarViajeActivity.class);
                 startActivity(intent);
             }
         });

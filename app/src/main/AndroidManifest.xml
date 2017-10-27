@@ -35,8 +35,8 @@
         <activity android:name=".AmigosActivity" />
         <activity android:name=".UsuarioDetalleActivity" />
         <activity android:name=".ViajeActivity" />
-        <activity android:name=".OpcionesViajeActivity" />
-        <activity android:name=".OpcionesViajeDetalleActivity" />
+        <activity android:name=".ProgramarViajeActivity" />
+        <activity android:name=".ViajeProgramadoActivity" />
         <activity android:name=".MisRutasActivity" />
         <activity android:name=".MisRutasDetalleActivity" />
         <activity android:name=".NuevoGrupalActivity" />
@@ -60,7 +60,9 @@
 
         <activity
             android:name=".NuevaActivity"
-            android:label="@string/title_activity_nueva"></activity>
+            android:label="@string/title_activity_nueva" />
+        <activity android:name=".UserAdapter" />
+        <activity android:name=".SolicitudesAmistadActivity"></activity>
     </application>
 
 </manifest>

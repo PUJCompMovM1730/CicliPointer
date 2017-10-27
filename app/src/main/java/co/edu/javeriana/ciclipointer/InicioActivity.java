@@ -5,8 +5,6 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -26,8 +24,17 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+
+import java.util.ArrayList;
+
+import entities.SolicitudAmistad;
 
 public class InicioActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -39,6 +46,7 @@ public class InicioActivity extends AppCompatActivity
     private FirebaseAuth mAuth;
     private StorageReference mStorageRef;
     private FirebaseUser user = null;
+    private DatabaseReference myRef;
 
 
     @Override
@@ -64,6 +72,8 @@ public class InicioActivity extends AppCompatActivity
 
         mStorageRef = FirebaseStorage.getInstance().getReference();
         mAuth =	FirebaseAuth.getInstance();
+        myRef = FirebaseDatabase.getInstance().getReference();
+        user = mAuth.getCurrentUser();
 
         cargarInfoBarra();
 
@@ -89,7 +99,7 @@ public class InicioActivity extends AppCompatActivity
         bViaje.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(getApplicationContext(), OpcionesViajeActivity.class);
+                Intent intent = new Intent(getApplicationContext(), ProgramarViajeActivity.class);
                 startActivity(intent);
             }
         });
@@ -123,6 +133,10 @@ public class InicioActivity extends AppCompatActivity
             intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             startActivity(intent);
         }
+        if(itemClicked == R.id.menuAmistad){
+            Intent	intent	=	new	Intent(InicioActivity.this, SolicitudesAmistadActivity.class);
+            startActivity(intent);
+        }
         return	super.onOptionsItemSelected(item);
     }
 
@@ -136,8 +150,27 @@ public class InicioActivity extends AppCompatActivity
             Intent intent = new Intent(getApplicationContext(),ProfileActivity.class);
             startActivity(intent);
         } else if (id == R.id.nav_amigos) {
-            Intent intent = new Intent(getApplicationContext(),AmigosActivity.class);
-            startActivity(intent);
+            //primero soluciones sol de amistad
+            myRef.child("solicitudes/"+user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(DataSnapshot dataSnapshot) {
+                    if (!dataSnapshot.hasChildren()) {
+                        Intent intent = new Intent(getApplicationContext(),AmigosActivity.class);
+                        startActivity(intent);
+                    }else
+                        Toast.makeText(InicioActivity.this, "Solucione primero las " +
+                                "solicitudes pendientes", Toast.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onCancelled(DatabaseError databaseError) {
+                    Toast.makeText(InicioActivity.this, "ERROR intentelo de nuevo" + databaseError
+                            .getMessage().toString(), Toast.LENGTH_SHORT).show();
+
+                }
+            });
+
+
         } else if (id == R.id.nav_mis_rutas) {
             Intent intent = new Intent(getApplicationContext(),MisRutasActivity.class);
             startActivity(intent);

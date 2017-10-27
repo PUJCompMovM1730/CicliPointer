@@ -165,6 +165,18 @@
             android:layout_alignParentLeft="true"
             android:layout_marginBottom="150dp"
             />
+
+        <Button
+            android:id="@+id/buttonGuardar"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginLeft="150dp"
+            android:layout_marginBottom="150dp"
+            android:background="@color/colorAccent"
+            android:text="Guardar ruta"
+            android:textSize="10sp" />
+
         <Button
             android:id="@+id/buttonBackList"
             android:layout_width="70dp"

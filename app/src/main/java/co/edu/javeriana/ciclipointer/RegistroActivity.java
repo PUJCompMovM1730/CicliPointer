@@ -199,7 +199,7 @@ public class RegistroActivity extends AppCompatActivity {
                             FirebaseUser user	=	mAuth.getCurrentUser();
                             if(user!=null) {    //Update	user	Info
                                 upcrb = new UserProfileChangeRequest.Builder();
-                                upcrb.setDisplayName(nombre.getText().toString());
+                                upcrb.setDisplayName(nombre.getText().toString().toUpperCase());
                                 if (profileUri != null) {
                                     mProgressDialog.setTitle("Subiendo...");
                                     mProgressDialog.setMessage("Subiendo foto al servidor");
@@ -211,9 +211,10 @@ public class RegistroActivity extends AppCompatActivity {
                                             .addOnSuccessListener(new OnSuccessListener<UploadTask.TaskSnapshot>() {
                                                 @Override
                                                 public void onSuccess(UploadTask.TaskSnapshot taskSnapshot) {
-                                                    Toast.makeText(RegistroActivity.this, "Correcto subir imagen", Toast.LENGTH_SHORT).show();
-                                                    mProgressDialog.dismiss();
                                                     upcrb.setPhotoUri(profileUri);
+                                                    Toast.makeText(RegistroActivity.this, "Correcto subir imagen", Toast.LENGTH_SHORT).show();
+                                                    avanzar(upcrb);
+                                                    mProgressDialog.dismiss();
                                                     profileUri = null;
                                                 }
                                             })
@@ -227,24 +228,9 @@ public class RegistroActivity extends AppCompatActivity {
                                             });
                                 } else {
                                     Toast.makeText(RegistroActivity.this, "Seleccione una imagen de perfil", Toast.LENGTH_SHORT).show();
+                                    avanzar(upcrb);
                                 }
-                                user.updateProfile(upcrb.build()).addOnSuccessListener(new OnSuccessListener<Void>() {
-                                    @Override
-                                    public void onSuccess(Void aVoid) {
-                                        if (guardarDataBase()) {
-                                            dbBoolean = true;
-                                            startActivity(new Intent(RegistroActivity.this, InicioActivity.class));
-                                        }else{
-                                            Toast.makeText(RegistroActivity.this, "Vuelva a intentarlo", Toast.LENGTH_SHORT).show();
-                                        }
-                                    }
-                                }).addOnFailureListener(new OnFailureListener() {
-                                    @Override
-                                    public void onFailure(@NonNull Exception e) {
-                                        Toast.makeText(RegistroActivity.this, "Vuelva a intentarlo", Toast.LENGTH_SHORT).show();
-                                        upcrb.setPhotoUri(null);
-                                    }
-                                });
+
 
                             }
                         }
@@ -260,6 +246,28 @@ public class RegistroActivity extends AppCompatActivity {
                 });
     }
 
+    private void avanzar(final UserProfileChangeRequest.Builder upcrb) {
+        FirebaseUser user	=	mAuth.getCurrentUser();
+        user.updateProfile(upcrb.build()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                if (guardarDataBase()) {
+
+                    dbBoolean = true;
+                    startActivity(new Intent(RegistroActivity.this, InicioActivity.class));
+                }else{
+                    Toast.makeText(RegistroActivity.this, "Vuelva a intentarlo", Toast.LENGTH_SHORT).show();
+                }
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception e) {
+                Toast.makeText(RegistroActivity.this, "Vuelva a intentarlo", Toast.LENGTH_SHORT).show();
+                upcrb.setPhotoUri(null);
+            }
+        });
+    }
+
     /**
      * Descripción: registra los datos básicos en
      * database
@@ -273,6 +281,9 @@ public class RegistroActivity extends AppCompatActivity {
         us.setEdad(0);
         us.setPeso(0);
         us.setRH("");
+        us.setKm(0);
+        us.setNombre(nombre.getText().toString().toUpperCase());
+        us.setCorreo(correo.getText().toString());
         myRef.child("users/"+mAuth.getCurrentUser().getUid())
                 .setValue(us).addOnFailureListener(new OnFailureListener() {
             @Override
