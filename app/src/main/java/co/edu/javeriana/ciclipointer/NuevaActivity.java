@@ -79,8 +79,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
+import entities.Recorrido;
+import entities.RecorridoUsuario;
 import entities.Ubicacion;
 
 public class NuevaActivity extends FragmentActivity implements OnMapReadyCallback {
@@ -131,6 +134,8 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
     private FirebaseUser user = null;
     private Map<String,Marker> usuarios = new HashMap<String,Marker>();
     private Map<String,Boolean> usuariosExistente = new HashMap<String,Boolean>();
+    private Recorrido re;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -185,8 +190,9 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
                 // Log.i("LOCATION",	"Location	update	in	the	callback:	"	+	location);
                 localizarActual();
                 calculoDistancia();
-                if (recorriendo)
+                if (recorriendo){
                     enMovimiento();
+                }
                 updateLocalizacion();
                 getUsersNear();
             }
@@ -372,6 +378,57 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
                 tiempo.setText("Duración: " + results.routes[routeSelected].legs[0].duration);
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(origen));
                 mMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+
+                Date date = new Date();
+
+                re = new Recorrido();
+                String kim = results.routes[routeSelected].legs[0].distance.humanReadable;
+                StringTokenizer tok = new StringTokenizer(kim," ");
+                //System.err.println("valor es km"+tok.nextToken());
+                re.setKm(Double.parseDouble(tok.nextToken()));
+                String tim = results.routes[routeSelected].legs[0].duration.humanReadable;
+                tok = new StringTokenizer(tim," ");
+                re.setTiempo(Integer.parseInt(tok.nextToken()));
+               /* System.err.println("valor estiempo"+tok.nextToken());
+                System.err.println("valor date hora"+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds());
+                System.err.println("valor date fecha"+(date.getYear()+1900)+"/"+
+                        (date.getMonth()+1)+"/"+(date.getDay()+22));*/
+                re.setTipo("Personal");
+                re.setHoraInicio(date.getHours()+":"+date.getMinutes()+":"+date.getSeconds());
+                re.setFechaInicio((date.getYear()+1900)+"/"+
+                        (date.getMonth()+1)+"/"+(date.getDay()+22));
+                Geocoder mGeocoder = new Geocoder(getBaseContext());
+                List<Address> addresses = null;
+                try {
+                    addresses = mGeocoder.getFromLocation(origen.latitude,origen.longitude,4);
+                    if (addresses != null && !addresses.isEmpty()) {
+                        Address addressResult = addresses.get(0);
+                        //System.err.println("valor es "+addressResult.getAddressLine(0));
+                        re.setOrigen(addressResult.getAddressLine(0));
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+
+                if(dirección.getText().toString().equals("")){
+                    try {
+                        addresses = mGeocoder.getFromLocation(desti.latitude,desti.longitude,4);
+                        if (addresses != null && !addresses.isEmpty()) {
+                            Address addressResult = addresses.get(0);
+                           // System.err.println("valor es "+addressResult.getAddressLine(0));
+                            if(addressResult.getAddressLine(0)!=null)
+                                re.setDestino(addressResult.getAddressLine(0));
+                            else
+                                re.setDestino("");
+                        }
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }else{
+                    re.setDestino(dirección.getText().toString());
+                }
+
+
             }
         });
 
@@ -391,6 +448,8 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
                 routeSelected = 0;
                 recorriendo = false;
                 guardar.setVisibility(View.GONE);
+
+                registrarRecorrido();
             }
         });
 
@@ -908,6 +967,7 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
                         if (removePolyline())
                             addPolyline(results, routeSelected);
                         llegue(x);
+
                     } else {
                         Long x = results.routes[0].legs[0].distance.inMeters;
                         distanci.setText("Distancia ruta: " + results.routes[0].legs[0].distance);
@@ -961,6 +1021,7 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
             tiempo.setText("");
             distanci.setText("¡Has llegado!");
             removePolyline();
+            registrarRecorrido();
         }
     }
 
@@ -1013,30 +1074,36 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
                      if(!singleSnapshot.getKey().equals(user.getUid())) {
                         Ubicacion ubi = singleSnapshot.getValue(Ubicacion.class);
                          LatLng pos = new LatLng(ubi.getLatitud(),ubi.getLongitud());
-                         if(usuarios.containsKey(singleSnapshot.getKey())){
-                             Marker mark = usuarios.get(singleSnapshot.getKey());
-                             mark.setPosition(pos);
-                             usuarios.put(singleSnapshot.getKey(),mark);
-                             usuariosExistente.put(singleSnapshot.getKey(),true);
-                         }else {
-                             if(dia) {
-                                 Marker mark = mMap.addMarker(new MarkerOptions()
-                                         .position(pos)
-                                         .title(ubi.getNombre())
-                                         .icon(BitmapDescriptorFactory
-                                                 .fromResource(R.drawable.user)));
+                         double dis = distance(location.getLatitude(),location.getLongitude(),
+                                 pos.latitude,pos.longitude);
+                         //System.err.println("valor es dis: "+dis);
+                         if(dis<=1.0) {
+                           //  System.err.println("valor es dentro: "+ubi.getNombre());
+                             if (usuarios.containsKey(singleSnapshot.getKey())) {
+                                 Marker mark = usuarios.get(singleSnapshot.getKey());
+                                 mark.setPosition(pos);
                                  usuarios.put(singleSnapshot.getKey(), mark);
-                                 usuariosExistente.put(singleSnapshot.getKey(),true);
-                             }else {
-                                 Marker mark = mMap.addMarker(new MarkerOptions()
-                                         .position(pos)
-                                         .title(ubi.getNombre())
-                                         .icon(BitmapDescriptorFactory
-                                                 .fromResource(R.drawable.usernight)));
-                                 usuarios.put(singleSnapshot.getKey(), mark);
-                                 usuariosExistente.put(singleSnapshot.getKey(),true);
-                             }
+                                 usuariosExistente.put(singleSnapshot.getKey(), true);
+                             } else {
+                                 if (dia) {
+                                     Marker mark = mMap.addMarker(new MarkerOptions()
+                                             .position(pos)
+                                             .title(ubi.getNombre())
+                                             .icon(BitmapDescriptorFactory
+                                                     .fromResource(R.drawable.user)));
+                                     usuarios.put(singleSnapshot.getKey(), mark);
+                                     usuariosExistente.put(singleSnapshot.getKey(), true);
+                                 } else {
+                                     Marker mark = mMap.addMarker(new MarkerOptions()
+                                             .position(pos)
+                                             .title(ubi.getNombre())
+                                             .icon(BitmapDescriptorFactory
+                                                     .fromResource(R.drawable.usernight)));
+                                     usuarios.put(singleSnapshot.getKey(), mark);
+                                     usuariosExistente.put(singleSnapshot.getKey(), true);
+                                 }
 
+                             }
                          }
                     }
                 }
@@ -1094,5 +1161,50 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
     }
 
+    private void registrarRecorrido(){
+        myRef.child("recorridos/" + user.getUid()).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
+                    String key = dataSnapshot.getKey();
+                     //System.out.println("valor es key "+key);
+                    List<Recorrido> m = new ArrayList<Recorrido>();
+                     for(DataSnapshot d:singleSnapshot.getChildren()){// for de cada
+                         Recorrido reco = d.getValue(Recorrido.class);
+                         m.add(reco);
+                         //System.out.println("valor es"+reco.getOrigen());
+                     }
+                    //acá llenamos lista de recorridos anteriores, y luego update
+                    updateRecorrido(m);
+                }
+                if (!dataSnapshot.hasChildren()) {
+                    crearRecorrido();
+                }
+            }
 
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(NuevaActivity.this, "ERROR subiendo a base de datos" + databaseError
+                        .getMessage().toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void crearRecorrido(){
+        RecorridoUsuario reUs = new RecorridoUsuario();
+        List<Recorrido> recorri = new ArrayList<>();
+        recorri.add(re);
+        reUs.setRecorridos(recorri);
+        myRef.child("recorridos/"+user.getUid())
+                .setValue(reUs);
+
+    }
+
+    private void updateRecorrido(List<Recorrido> m){
+        m.add(re);
+        RecorridoUsuario reUs = new RecorridoUsuario();
+        reUs.setRecorridos(m);
+        myRef.child("recorridos/"+user.getUid())
+                .setValue(reUs);
+    }
 }
