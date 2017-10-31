@@ -43,7 +43,6 @@
         <activity android:name=".NuevoGrupalDetalleActivity" />
         <activity android:name=".AmigosGrupalActivity" />
         <activity android:name=".MisGrupalesActivity" />
-        <activity android:name=".MisGrupalesAnfitrionActivity" />
         <activity android:name=".MisGrupalesInvitadoActivity" />
         <activity android:name=".MapInfoActivity" />
         <!--
@@ -71,7 +70,8 @@
 
         <activity android:name=".NuevoProgramadoActivity" />
         <activity android:name=".MisProgramadosActivity" />
-        <activity android:name=".MisProgramadosDetalleActivity"></activity>
+        <activity android:name=".MisProgramadosDetalleActivity" />
+        <activity android:name=".MisGrupalesDetalleActivity"></activity>
     </application>
 
 </manifest>

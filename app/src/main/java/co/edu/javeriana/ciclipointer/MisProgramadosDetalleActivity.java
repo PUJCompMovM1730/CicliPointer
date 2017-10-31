@@ -1,37 +1,13 @@
 package co.edu.javeriana.ciclipointer;
 
 import android.content.Intent;
-import android.content.IntentSender;
-import android.content.pm.PackageManager;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
-
-import com.google.android.gms.common.api.ApiException;
-import com.google.android.gms.common.api.CommonStatusCodes;
-import com.google.android.gms.common.api.ResolvableApiException;
-import com.google.android.gms.location.FusedLocationProviderClient;
-import com.google.android.gms.location.LocationCallback;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationResult;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsRequest;
-import com.google.android.gms.location.LocationSettingsResponse;
-import com.google.android.gms.location.LocationSettingsStatusCodes;
-import com.google.android.gms.location.SettingsClient;
-import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -43,16 +19,11 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
-import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
 import com.google.maps.DirectionsApi;
 import com.google.maps.GeoApiContext;
 import com.google.maps.android.PolyUtil;
@@ -62,18 +33,15 @@ import com.google.maps.model.TravelMode;
 import org.joda.time.DateTime;
 
 import java.io.IOException;
-import java.util.ArrayList;
+
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.StringTokenizer;
+
 import java.util.concurrent.TimeUnit;
 
-import entities.Recorrido;
-import entities.RecorridoUsuario;
-import entities.Ubicacion;
-import entities.Usuario;
+
 
 public class MisProgramadosDetalleActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -117,18 +85,29 @@ public class MisProgramadosDetalleActivity extends FragmentActivity implements O
 
         distanci = (TextView) findViewById(R.id.textViewDistancia);
         tiempo = (TextView) findViewById(R.id.textViewTiempo);
-
-
-
         cancelar = (Button) findViewById(R.id.buttonCancelar);
-        cancelar.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                borrarProgramado();
-                startActivity(new Intent(getApplicationContext(),InicioActivity.class));
-            }
-        });
 
+        if(getIntent().getStringExtra("tipo").equals("Programado-Grupal")){
+            cancelar.setText("Ver detalle");
+            cancelar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(getApplicationContext(),MisGrupalesDetalleActivity.class);
+                    intent.putExtra("anfitrion",getIntent().getStringExtra("anfitrion"));
+                    intent.putExtra("grupal",getIntent().getStringExtra("grupal"));
+                    intent.putExtra("key",getIntent().getStringExtra("key"));
+                    startActivity(intent);
+                }
+            });
+        }else {
+            cancelar.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    borrarProgramado();
+                    startActivity(new Intent(getApplicationContext(), InicioActivity.class));
+                }
+            });
+        }
 
     }
 

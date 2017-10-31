@@ -64,6 +64,8 @@ public class MisProgramadosActivity extends AppCompatActivity {
                 intent.putExtra("ruta",ru.getRuta());
                 intent.putExtra("tipo",ru.getTipo());
                 intent.putExtra("key",keys.get(i));
+                intent.putExtra("anfitrion",ru.getKeyAnfitrion());
+                intent.putExtra("grupal",ru.getKeyGrupal());
                 startActivity(intent);
             }
         });

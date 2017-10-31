@@ -1,6 +1,5 @@
 package co.edu.javeriana.ciclipointer;
 
-import android.*;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -42,7 +41,6 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -82,6 +80,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
+import entities.MisRuta;
 import entities.Recorrido;
 import entities.RecorridoUsuario;
 import entities.Ubicacion;
@@ -454,7 +453,7 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
         guardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // guarda datos  antes de set
+                GuardarRuta();
                 dirección.setVisibility(View.VISIBLE);
                 dirección.setText("");
                 avanzada.setVisibility(View.VISIBLE);
@@ -468,6 +467,26 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
                 recorriendo = false;
                 kmDestino = 0;
                 primeraKm = true;
+
+
+            }
+        });
+    }
+
+    private void GuardarRuta() {
+        MisRuta ruta = new MisRuta();
+        ruta.setLatDestino(desti.latitude);
+        ruta.setLongDestino(desti.longitude);
+        ruta.setLatOrigen(origen.latitude);
+        ruta.setLongOrigen(origen.longitude);
+        ruta.setRuta(routeSelected);
+        ruta.setOrigen(re.getOrigen());
+        ruta.setDestino(re.getDestino());
+        String key = myRef.child("rutas/"+user.getUid()).push().getKey();
+        myRef.child("rutas/"+user.getUid()+"/"+key).setValue(ruta).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(NuevaActivity.this, "Se guardo la ruta", Toast.LENGTH_SHORT).show();
             }
         });
     }

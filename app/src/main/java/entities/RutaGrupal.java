@@ -18,6 +18,7 @@ public class RutaGrupal {
     private String tipoGru;
     private List<String> invitados;
     private List<String> confirmados;
+    private List<String> programadosConfirmados;
 
     public RutaGrupal() {
     }
@@ -108,5 +109,13 @@ public class RutaGrupal {
 
     public void setConfirmados(List<String> confirmados) {
         this.confirmados = confirmados;
+    }
+
+    public List<String> getProgramadosConfirmados() {
+        return programadosConfirmados;
+    }
+
+    public void setProgramadosConfirmados(List<String> programadosConfirmados) {
+        this.programadosConfirmados = programadosConfirmados;
     }
 }

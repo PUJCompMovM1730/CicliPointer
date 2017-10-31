@@ -1,22 +1,20 @@
 package entities;
 
 /**
- * Created by Felipe on 30/10/2017.
+ * Created by Felipe on 31/10/2017.
  */
 
-public class RutaProgramada {
+public class MisRuta {
     private double latOrigen;
     private double longOrigen;
     private double latDestino;
     private double longDestino;
     private int ruta;
-    private String fecha;
-    private String hora;
-    private String tipo;
-    private String keyGrupal;
-    private String keyAnfitrion;
 
-    public RutaProgramada() {
+    private String origen;
+    private String destino;
+
+    public MisRuta() {
     }
 
     public double getLatOrigen() {
@@ -59,43 +57,19 @@ public class RutaProgramada {
         this.ruta = ruta;
     }
 
-    public String getFecha() {
-        return fecha;
+    public String getOrigen() {
+        return origen;
     }
 
-    public void setFecha(String fecha) {
-        this.fecha = fecha;
+    public void setOrigen(String origen) {
+        this.origen = origen;
     }
 
-    public String getHora() {
-        return hora;
+    public String getDestino() {
+        return destino;
     }
 
-    public void setHora(String hora) {
-        this.hora = hora;
-    }
-
-    public String getTipo() {
-        return tipo;
-    }
-
-    public void setTipo(String tipo) {
-        this.tipo = tipo;
-    }
-
-    public String getKeyGrupal() {
-        return keyGrupal;
-    }
-
-    public void setKeyGrupal(String keyGrupal) {
-        this.keyGrupal = keyGrupal;
-    }
-
-    public String getKeyAnfitrion() {
-        return keyAnfitrion;
-    }
-
-    public void setKeyAnfitrion(String keyAnfitrion) {
-        this.keyAnfitrion = keyAnfitrion;
+    public void setDestino(String destino) {
+        this.destino = destino;
     }
 }

@@ -81,6 +81,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
+import entities.MisRuta;
 import entities.Recorrido;
 import entities.RecorridoUsuario;
 import entities.Ubicacion;
@@ -221,12 +222,29 @@ public class NuevoProgramadoActivity extends FragmentActivity implements OnMapRe
         guardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // guarda ruta
+                GuardarRuta();
                 startActivity(new Intent(getApplicationContext(),InicioActivity.class));
             }
         });
     }
 
+    private void GuardarRuta() {
+        MisRuta ruta = new MisRuta();
+        ruta.setLatDestino(desti.latitude);
+        ruta.setLongDestino(desti.longitude);
+        ruta.setLatOrigen(origen.latitude);
+        ruta.setLongOrigen(origen.longitude);
+        ruta.setRuta(routeSelected);
+        ruta.setOrigen(re.getOrigen());
+        ruta.setDestino(re.getDestino());
+        String key = myRef.child("rutas/"+user.getUid()).push().getKey();
+        myRef.child("rutas/"+user.getUid()+"/"+key).setValue(ruta).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(NuevoProgramadoActivity.this, "Se guardo la ruta", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
     /**
      * Manipulates the map once available.
      * This callback is triggered when the map is ready to be used.
@@ -246,6 +264,9 @@ public class NuevoProgramadoActivity extends FragmentActivity implements OnMapRe
 
         double latO = getIntent().getDoubleExtra("latOrigen",0);
         origen = new LatLng(latO,getIntent().getDoubleExtra("longOrigen",0));
+        desti = new LatLng(getIntent().getDoubleExtra("latDesti",0),getIntent().getDoubleExtra("longDesti",0));
+        routeSelected = getIntent().getIntExtra("ruta",0);
+
         if (date.getHours() >= 6 && date.getHours() < 18) {
             dia = true;
             if (move != null)
@@ -274,10 +295,10 @@ public class NuevoProgramadoActivity extends FragmentActivity implements OnMapRe
         }
 
         destinoAzul = mMap.addMarker(new MarkerOptions()
-                .position(origen)
+                .position(desti)
                 .icon(BitmapDescriptorFactory
                         .defaultMarker(BitmapDescriptorFactory.HUE_BLUE)));
-        destinoAzul.setVisible(false);
+        //destinoAzul.setVisible(false);
 
 
         mMap.setInfoWindowAdapter(new GoogleMap.InfoWindowAdapter() {
@@ -344,8 +365,8 @@ public class NuevoProgramadoActivity extends FragmentActivity implements OnMapRe
                         .fromResource(R.drawable.castillo)));
 
         enMovimiento();
-        distanci.setText("Distancia ruta: " + results.routes[routeSelected].legs[0].distance);
-        tiempo.setText("Duración: " + results.routes[routeSelected].legs[0].duration);
+    //    distanci.setText("Distancia ruta: " + results.routes[routeSelected].legs[0].distance);
+     //   tiempo.setText("Duración: " + results.routes[routeSelected].legs[0].duration);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(origen));
         mMap.moveCamera(CameraUpdateFactory.zoomTo(17));
         iniciarKm();

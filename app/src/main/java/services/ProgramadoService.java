@@ -31,7 +31,7 @@ public class ProgramadoService extends IntentService {
     private FirebaseAuth mAuth;
     private boolean trabajando = true;
     private FirebaseUser user = null;
-    private int min =5;
+    private int min =0;
     private int menor = 100;
 
     public ProgramadoService() {
@@ -79,6 +79,7 @@ public class ProgramadoService extends IntentService {
                                         if(minutos-dateActual.getMinutes()<5&&minutos-dateActual.getMinutes()<menor){
                                             menor = minutos-dateActual.getMinutes();
                                             min = minutos-dateActual.getMinutes();
+                                            System.out.println("valor es min 1 "+min);
                                             Toast.makeText(ProgramadoService.this, "En "+min+" inicia recorrido", Toast.LENGTH_SHORT).show();
                                         }else
                                             min = 0;
@@ -115,6 +116,7 @@ public class ProgramadoService extends IntentService {
                                                                 if(minutos-dateActual.getMinutes()<5&&minutos-dateActual.getMinutes()<menor){
                                                                     menor = minutos-dateActual.getMinutes();
                                                                     min = minutos-dateActual.getMinutes();
+                                                                    System.out.println("valor es min 2 "+min);
                                                                     Toast.makeText(ProgramadoService.this, "En "+min+" inicia recorrido", Toast.LENGTH_SHORT).show();
                                                                 }else
                                                                     min = 0;
@@ -160,14 +162,14 @@ public class ProgramadoService extends IntentService {
                 });
 
                  int seg;
-
+                 System.out.println("valor es min 3 "+min);
                  if(min == 0){
                      seg = 5;
                  }else{
                      seg = min*60;
                  }
                  int milis = seg*1000;
-                 //System.out.println("valor es "+milis);
+                 System.out.println("valor es "+milis);
                 Thread.sleep(milis);
             }
 

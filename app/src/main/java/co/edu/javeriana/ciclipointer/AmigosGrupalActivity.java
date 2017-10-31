@@ -24,6 +24,7 @@ import com.google.firebase.database.ValueEventListener;
 import java.util.ArrayList;
 import java.util.List;
 
+import entities.InvitacionGrupal;
 import entities.RutaGrupal;
 import entities.RutaProgramada;
 import entities.Usuario;
@@ -37,6 +38,7 @@ public class AmigosGrupalActivity extends AppCompatActivity {
     private FirebaseDatabase database;
     private DatabaseReference myRef;
     private UserAdapter adapter;
+    private String keyPri;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,21 +80,12 @@ public class AmigosGrupalActivity extends AppCompatActivity {
         }else{
             //si selecciono almenos uno, aca se guarda todo
             crearRutaGrupal(seleccionados);
-            StringBuilder resultado=new StringBuilder();
-            resultado.append("Se seleccionaron los siguientes elementos:\n");
-            final int size=seleccionados.size();
-            for (int i=0; i<size; i++) {
-                //Si valueAt(i) es true, es que estaba seleccionado
-                if (seleccionados.valueAt(i)) {
-
-                    // crear solicitud a cada uno arreglo.get(seleccionados.keyAt(i));
-                    //añ cofirmar debe tener referecnai al grupal para agregarlo a lista, igual si cancela se quita conrifimados
-                    //resultado.append("El elemento "+seleccionados.keyAt(i)+" estaba seleccionado\n");
-                }
-            }
-
+            //StringBuilder resultado=new StringBuilder();
+            //resultado.append("Se seleccionaron los siguientes elementos:\n");
         }
     }
+
+
 
     public void cancelar(View view){
         Intent intent = new Intent(this,InicioActivity.class);
@@ -100,7 +93,7 @@ public class AmigosGrupalActivity extends AppCompatActivity {
     }
 
 
-    private void crearRutaGrupal(SparseBooleanArray seleccionados){
+    private void crearRutaGrupal(final SparseBooleanArray seleccionados){
         RutaGrupal ru = new RutaGrupal();
         ru.setRuta(getIntent().getIntExtra("ruta",0));
         ru.setFecha(getIntent().getStringExtra("fecha"));
@@ -120,8 +113,8 @@ public class AmigosGrupalActivity extends AppCompatActivity {
         }
         ru.setInvitados(us);
         ru.setConfirmados(new ArrayList<String>());
-        String key = myRef.child("grupales/"+user.getUid()).push().getKey();
-        myRef.child("grupales/"+user.getUid()+"/"+key)
+        keyPri = myRef.child("grupales/"+user.getUid()).push().getKey();
+        myRef.child("grupales/"+user.getUid()+"/"+keyPri)
                 .setValue(ru).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
@@ -134,22 +127,39 @@ public class AmigosGrupalActivity extends AppCompatActivity {
                 ru.setLatDestino(getIntent().getDoubleExtra("latDesti",0));
                 ru.setLongDestino(getIntent().getDoubleExtra("longDesti",0));
                 ru.setRuta(getIntent().getIntExtra("ruta",0));
-                crearRutaProgramada(ru);
+                ru.setKeyGrupal(keyPri);
+                ru.setKeyAnfitrion(user.getUid());
+                crearRutaProgramada(ru,seleccionados);
             }
         });
     }
 
-    private void crearRutaProgramada(RutaProgramada ru){
+    private void crearRutaProgramada(RutaProgramada ru, final SparseBooleanArray  seleccionados){
         String key = myRef.child("programados/"+user.getUid()).push().getKey();
         myRef.child("programados/"+user.getUid()+"/"+key)
                 .setValue(ru).addOnSuccessListener(new OnSuccessListener<Void>() {
             @Override
             public void onSuccess(Void aVoid) {
+                final int size=seleccionados.size();
+                for (int i=0; i<size; i++){
+                    if (seleccionados.valueAt(i)){
+                        crearSolicitud(arreglo.get(seleccionados.keyAt(i)));
+                    }
+                }
                 Toast.makeText(AmigosGrupalActivity.this, "Se ha guardado el recorrido", Toast.LENGTH_LONG).show();
                 Intent in = new Intent(getApplicationContext(),InicioActivity.class);
                 startActivity(in);
             }
         });
+    }
+
+    private void crearSolicitud(Usuario usuario) {
+        InvitacionGrupal in = new InvitacionGrupal();
+        in.setAnfritrion(user.getUid());
+        in.setViajeGrupal(keyPri);
+        in.setNombre(user.getDisplayName().toUpperCase());
+        String key = myRef.child("solicitudGrupal/" + usuario.getRH()).push().getKey();
+        myRef.child("solicitudGrupal/" + usuario.getRH()+"/"+key).setValue(in);
     }
 
     private void buscarAmigos() {

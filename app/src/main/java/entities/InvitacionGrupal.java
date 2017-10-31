@@ -8,6 +8,7 @@ public class InvitacionGrupal {
 
     private String anfritrion;
     private String viajeGrupal;
+    private String nombre;
 
     public InvitacionGrupal() {
     }
@@ -26,5 +27,13 @@ public class InvitacionGrupal {
 
     public void setViajeGrupal(String viajeGrupal) {
         this.viajeGrupal = viajeGrupal;
+    }
+
+    public String getNombre() {
+        return nombre;
+    }
+
+    public void setNombre(String nombre) {
+        this.nombre = nombre;
     }
 }

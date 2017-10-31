@@ -394,6 +394,7 @@ public class ProgramadoActivity extends FragmentActivity implements OnMapReadyCa
 
 
 
+
     /**
      * Descripción: busca las coordenadas
      * de un lugar dado un nombre, y ubica
