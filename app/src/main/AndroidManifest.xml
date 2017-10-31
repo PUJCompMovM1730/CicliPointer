@@ -62,7 +62,16 @@
             android:name=".NuevaActivity"
             android:label="@string/title_activity_nueva" />
         <activity android:name=".UserAdapter" />
-        <activity android:name=".SolicitudesAmistadActivity"></activity>
+        <activity android:name=".SolicitudesAmistadActivity" />
+        <activity android:name=".ProgramadoActivity" />
+
+        <service
+            android:name="services.ProgramadoService"
+            android:exported="false" />
+
+        <activity android:name=".NuevoProgramadoActivity" />
+        <activity android:name=".MisProgramadosActivity" />
+        <activity android:name=".MisProgramadosDetalleActivity"></activity>
     </application>
 
 </manifest>

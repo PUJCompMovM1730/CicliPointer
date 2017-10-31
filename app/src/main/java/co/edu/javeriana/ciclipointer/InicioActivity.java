@@ -32,9 +32,8 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
-import java.util.ArrayList;
+import services.ProgramadoService;
 
-import entities.SolicitudAmistad;
 
 public class InicioActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -74,6 +73,8 @@ public class InicioActivity extends AppCompatActivity
         mAuth =	FirebaseAuth.getInstance();
         myRef = FirebaseDatabase.getInstance().getReference();
         user = mAuth.getCurrentUser();
+
+        startService(new Intent(getApplicationContext(), ProgramadoService.class));
 
         cargarInfoBarra();
 
@@ -176,6 +177,9 @@ public class InicioActivity extends AppCompatActivity
             startActivity(intent);
         } else if (id == R.id.nav_mis_viajes_grupales) {
             Intent intent = new Intent(getApplicationContext(),MisGrupalesActivity.class);
+            startActivity(intent);
+        }else if (id == R.id.nav_mis_programados) {
+            Intent intent = new Intent(getApplicationContext(),MisProgramadosActivity.class);
             startActivity(intent);
         }else if (id == R.id.nav_share) {
 

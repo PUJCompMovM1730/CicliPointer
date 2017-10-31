@@ -2,10 +2,16 @@ package co.edu.javeriana.ciclipointer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentSender;
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.location.Address;
 import android.location.Geocoder;
+import android.location.Location;
+import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -15,11 +21,24 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.google.android.gms.common.api.ApiException;
+import com.google.android.gms.common.api.CommonStatusCodes;
+import com.google.android.gms.common.api.ResolvableApiException;
 import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.FusedLocationProviderClient;
+import com.google.android.gms.location.LocationCallback;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationResult;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResponse;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
@@ -35,11 +54,16 @@ import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 import com.google.maps.DirectionsApi;
 import com.google.maps.GeoApiContext;
 import com.google.maps.android.PolyUtil;
@@ -51,12 +75,20 @@ import org.joda.time.DateTime;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
+import entities.Recorrido;
+import entities.RecorridoUsuario;
 import entities.RutaProgramada;
+import entities.Ubicacion;
+import entities.Usuario;
 
-public class NuevoGrupalDetalleActivity extends FragmentActivity implements OnMapReadyCallback {
+public class ProgramadoActivity extends FragmentActivity implements OnMapReadyCallback {
+
     private GoogleMap mMap = null;
     private EditText dirección;
     private TextView distanci, tiempo;
@@ -89,7 +121,7 @@ public class NuevoGrupalDetalleActivity extends FragmentActivity implements OnMa
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_nuevo_grupal_detalle);
+        setContentView(R.layout.activity_programado);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
@@ -181,11 +213,11 @@ public class NuevoGrupalDetalleActivity extends FragmentActivity implements OnMa
                 boolean complete = true;
 
                 if (origen == null) {
-                    Toast.makeText(NuevoGrupalDetalleActivity.this, "Especifique un origen", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProgramadoActivity.this, "Especifique un origen", Toast.LENGTH_SHORT).show();
                     complete = false;
                 }
                 if (desti == null) {
-                    Toast.makeText(NuevoGrupalDetalleActivity.this, "Especifique un destino", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProgramadoActivity.this, "Especifique un destino", Toast.LENGTH_SHORT).show();
                     complete = false;
                 }
                 if (complete) {
@@ -223,16 +255,16 @@ public class NuevoGrupalDetalleActivity extends FragmentActivity implements OnMa
                             mMap.moveCamera(CameraUpdateFactory.newLatLng(desti));
                             mMap.moveCamera(CameraUpdateFactory.zoomTo(14));
                         } else
-                            Toast.makeText(NuevoGrupalDetalleActivity.this, "No se encuentran rutas", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(ProgramadoActivity.this, "No se encuentran rutas", Toast.LENGTH_SHORT).show();
                     } catch (com.google.maps.errors.ApiException e) {
                         e.printStackTrace();
-                        Toast.makeText(NuevoGrupalDetalleActivity.this, "Error con el servidor", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ProgramadoActivity.this, "Error con el servidor", Toast.LENGTH_SHORT).show();
                     } catch (InterruptedException e) {
                         e.printStackTrace();
-                        Toast.makeText(NuevoGrupalDetalleActivity.this, "Se perdió conexión", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ProgramadoActivity.this, "Se perdió conexión", Toast.LENGTH_SHORT).show();
                     } catch (IOException e) {
                         e.printStackTrace();
-                        Toast.makeText(NuevoGrupalDetalleActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(ProgramadoActivity.this, "Error", Toast.LENGTH_SHORT).show();
                     }
                 }
             }
@@ -270,19 +302,17 @@ public class NuevoGrupalDetalleActivity extends FragmentActivity implements OnMa
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(origen));
                 mMap.moveCamera(CameraUpdateFactory.zoomTo(17));
                 if(origen!=null && desti!=null){
-                    Intent intent = new Intent(getApplicationContext(),AmigosGrupalActivity.class);
-                    intent.putExtra("fecha",getIntent().getStringExtra("fecha"));
-                    intent.putExtra("hora",getIntent().getStringExtra("hora"));
-                    intent.putExtra("tipo",getIntent().getStringExtra("tipo"));
-                    intent.putExtra("tipoGrup",getIntent().getStringExtra("tipoGrup"));
-                    intent.putExtra("latOri",origen.latitude);
-                    intent.putExtra("longOri",origen.longitude);
-                    intent.putExtra("latDesti",desti.latitude);
-                    intent.putExtra("longDesti",desti.longitude);
-                    intent.putExtra("ruta",routeSelected);
-                    startActivity(intent);
 
-
+                    RutaProgramada ru = new RutaProgramada();
+                    ru.setFecha(getIntent().getStringExtra("fecha"));
+                    ru.setHora(getIntent().getStringExtra("hora"));
+                    ru.setTipo(getIntent().getStringExtra("tipo"));
+                    ru.setLatOrigen(origen.latitude);
+                    ru.setLongOrigen(origen.longitude);
+                    ru.setLatDestino(desti.latitude);
+                    ru.setLongDestino(desti.longitude);
+                    ru.setRuta(routeSelected);
+                    crearRutaProgramada(ru);
 
                 }
 
@@ -404,14 +434,14 @@ public class NuevoGrupalDetalleActivity extends FragmentActivity implements OnMa
                         }
                     }
                 } else {
-                    Toast.makeText(NuevoGrupalDetalleActivity.this, "Dirección no encontrada", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(ProgramadoActivity.this, "Dirección no encontrada", Toast.LENGTH_SHORT).show();
                     destinoAzul.setVisible(false);
                 }
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            Toast.makeText(NuevoGrupalDetalleActivity.this, "La dirección esta vacía", Toast.LENGTH_SHORT).show();
+            Toast.makeText(ProgramadoActivity.this, "La dirección esta vacía", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -457,7 +487,7 @@ public class NuevoGrupalDetalleActivity extends FragmentActivity implements OnMa
 
             @Override
             public void onError(Status status) {
-                Toast.makeText(NuevoGrupalDetalleActivity.this, "Error cargando destino", Toast.LENGTH_SHORT).show();
+                Toast.makeText(ProgramadoActivity.this, "Error cargando destino", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -511,5 +541,16 @@ public class NuevoGrupalDetalleActivity extends FragmentActivity implements OnMa
     }
 
 
-
+    private void crearRutaProgramada(RutaProgramada ru){
+        String key = myRef.child("programados/"+user.getUid()).push().getKey();
+        myRef.child("programados/"+user.getUid()+"/"+key)
+                .setValue(ru).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void aVoid) {
+                Toast.makeText(ProgramadoActivity.this, "Guardando futuro recorrido", Toast.LENGTH_LONG).show();
+                Intent in = new Intent(getApplicationContext(),InicioActivity.class);
+                startActivity(in);
+            }
+        });
+    }
 }

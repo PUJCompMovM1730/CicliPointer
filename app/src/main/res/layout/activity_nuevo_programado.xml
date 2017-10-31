@@ -1,0 +1,95 @@
+<LinearLayout xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_height="match_parent"
+    android:layout_width="match_parent"
+    android:orientation="vertical"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:padding="3dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:map="http://schemas.android.com/apk/res-auto"
+            xmlns:tools="http://schemas.android.com/tools"
+            android:id="@+id/map"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            tools:context="com.example.sala_bd.tallerpermisos.MapsActivity" />
+
+        <ImageView
+            android:id="@+id/imageViewMove"
+            android:layout_width="45dp"
+            android:layout_height="45dp"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentTop="true"
+            app:srcCompat="@drawable/movelocation" />
+
+        <TextView
+            android:id="@+id/textViewDistancia"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="30dp"
+            android:text=""
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/textViewTiempo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="15dp"
+            android:text=""
+            android:textColor="@color/colorAccent"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/rutaInfo"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:text="Rutas"
+            android:textColor="@color/colorAccent"
+            android:textSize="30sp" />
+
+        <LinearLayout
+            android:layout_width="250dp"
+            android:layout_height="145dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerInParent="true"
+            android:paddingTop="25dp">
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/buttonGuardar"
+            android:layout_width="100dp"
+            android:layout_height="30dp"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="150dp"
+            android:layout_marginLeft="150dp"
+            android:background="@color/colorAccent"
+            android:text="Guardar ruta"
+            android:textSize="10sp" />
+
+        <Button
+            android:id="@+id/buttonCancelar"
+            android:layout_width="70dp"
+            android:layout_height="30dp"
+            android:layout_alignParentTop="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="10dp"
+            android:background="@color/colorAccent"
+            android:text="Cancelar"
+            android:textSize="10sp" />
+
+    </RelativeLayout>
+
+
+</LinearLayout>

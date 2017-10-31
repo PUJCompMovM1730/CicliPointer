@@ -191,7 +191,7 @@ public class ProfileActivity extends AppCompatActivity {
                         Pedad.setText(myUser.getEdad()+"");
                         Paltura.setText(myUser.getAltura()+"");
                         Prh.setText(myUser.getRH());
-                        Pkm.setText(myUser.getKm()+"");
+                        Pkm.setText(String.format("%.2f", myUser.getKm()));
                         Apeso = myUser.getPeso();
                         Aaltura = myUser.getAltura();
                         ARH = myUser.getRH();

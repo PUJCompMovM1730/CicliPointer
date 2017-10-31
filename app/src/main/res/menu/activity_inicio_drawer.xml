@@ -18,6 +18,10 @@
             android:id="@+id/nav_mis_viajes_grupales"
             android:icon="@drawable/viajesgrupales"
             android:title="Mis Viajes Grupales" />
+        <item
+            android:id="@+id/nav_mis_programados"
+            android:icon="@drawable/programados"
+            android:title="Mis Viajes programados" />
     </group>
 
     <item android:title="Communícate">

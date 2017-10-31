@@ -1,6 +1,5 @@
 package co.edu.javeriana.ciclipointer;
 
-import android.*;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentSender;
@@ -12,8 +11,9 @@ import android.location.Location;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentActivity;
-import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.InputMethodManager;
@@ -42,7 +42,6 @@ import com.google.android.gms.location.SettingsClient;
 import com.google.android.gms.location.places.Place;
 import com.google.android.gms.location.places.ui.PlaceAutocompleteFragment;
 import com.google.android.gms.location.places.ui.PlaceSelectionListener;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -87,10 +86,9 @@ import entities.RecorridoUsuario;
 import entities.Ubicacion;
 import entities.Usuario;
 
-public class NuevaActivity extends FragmentActivity implements OnMapReadyCallback {
+public class NuevoProgramadoActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap = null;
-    private EditText dirección;
     private TextView distanci, tiempo;
 
     private LocationRequest mLocationRequest; // prender loc si esta apagada
@@ -100,8 +98,7 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
     public final static double RADIUS_OF_EARTH_KM = 6371;
     private FusedLocationProviderClient mFusedLocationClient;
     private Location location = null;
-    private LatLng origen, desti = null;
-    private String Norigen = "Centro Comercial Parque La Colina", Ndestino = null;
+    private LatLng origen = null, desti = null;
     private Marker bikeActual, destinoAzul, tienda1, tienda2, tienda3, tienda4, tienda5;
     public double longitudCityBike = -74.052350, latitudCityBike = 4.732924;
     public double longituBabilonia = -74.033026, latitudBabilonia = 4.743359;
@@ -109,24 +106,15 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
     public double longituCastillo = -74.030582, latitudCastillo = 4.698325;
     public double longituBikers = -74.036585, latitudBikers = 4.719675;
     private View popup = null;
-    private boolean first = true, advanceLooking = false;
+    private boolean first = true;
     private ImageView move = null;
-    private Button avanzada = null, volver = null, rutas;
-    private Button iniciarRecorrido = null, volverLista = null,
-            cancelar = null, guardar = null;
+    private Button  cancelar = null, guardar = null;
     private PlaceAutocompleteFragment autocompleteFragment = null;
     private DirectionsResult results = null;
-    private ListView listRutas = null;
-    private List<String> listRutasString = new ArrayList<String>();
-    private TextView rutaInfo;
     private Polyline poly;
     private int routeSelected = 0;
-    private boolean recorriendo = false,dia = true;
+    private boolean recorriendo = true,dia = true;
 
-    public static final double lowerLeftLatitude = 4.469636;
-    public static final double lowerLeftLongitude = -74.177171;
-    public static final double upperRightLatitude = 4.817991;
-    public static final double upperRigthLongitude = -74.001390;
 
     private static final String GOOGLE_KEY_SERVER = "AIzaSyCs6lRlHIp2XrYyJJOCeMAk-Bd-g5ISUBE";
 
@@ -137,15 +125,13 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
     private Map<String,Boolean> usuariosExistente = new HashMap<String,Boolean>();
     private Recorrido re;
     private double kmOirginal = 0, pos = 0,
-                    kmDestino = 0;
+            kmDestino = 0;
     private boolean primeraKm = true;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_nueva);
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
+        setContentView(R.layout.activity_nuevo_programado);
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
@@ -155,6 +141,10 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
         /* Move boton que permite volver a ubicación actual.*
         / Revisa si tiene permisos, sino los pide.
          */
+        double latO = getIntent().getDoubleExtra("latOrigen",0);
+        origen = new LatLng(latO,getIntent().getDoubleExtra("longOrigen",0));
+        desti = new LatLng(getIntent().getDoubleExtra("latDesti",0),getIntent().getDoubleExtra("longDesti",0));
+        routeSelected = getIntent().getIntExtra("ruta",0);
 
         mAuth =	FirebaseAuth.getInstance();
         user = mAuth.getCurrentUser();
@@ -163,6 +153,8 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
         distanci = (TextView) findViewById(R.id.textViewDistancia);
         tiempo = (TextView) findViewById(R.id.textViewTiempo);
 
+
+        borrarProgramado();
         move = (ImageView) findViewById(R.id.imageViewMove);
         move.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -179,6 +171,8 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
                     solicitudPermiso();
             }
         });
+
+
         // acá el callback tiene la localización actualizada
         mLocationCallback = new LocationCallback() {
             @Override
@@ -186,7 +180,6 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
                 location = locationResult.getLastLocation();
                 // Log.i("LOCATION",	"Location	update	in	the	callback:	"	+	location);
                 localizarActual();
-                calculoDistancia();
                 if (recorriendo){
                     enMovimiento();
                 }
@@ -205,273 +198,34 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
 
 
         // Escucha enter al terminar de escribir destino
-        dirección = (EditText) findViewById(R.id.texto);
-        dirección.setImeActionLabel("Custom text", KeyEvent.KEYCODE_ENTER);
-        dirección.setOnKeyListener(new View.OnKeyListener() {
-            @Override
-            public boolean onKey(View v, int keyCode, KeyEvent event) {
-                if ((event.getAction() == KeyEvent.ACTION_DOWN) &&
-                        (keyCode == KeyEvent.KEYCODE_ENTER)) {
-                    buscarDireccion();
-                    InputMethodManager inputMethodManager = (InputMethodManager) getSystemService(Context.INPUT_METHOD_SERVICE);
-                    inputMethodManager.hideSoftInputFromWindow(dirección.getWindowToken(), 0);
-                    return true;
-                }
-                return false;
-            }
-        });
 
-        busquedaAvanzada();
 
-        avanzada = (Button) findViewById(R.id.buttonHelp);
-        volver = (Button) findViewById(R.id.buttonBack);
-        rutas = (Button) findViewById(R.id.buttonRutas);
-        iniciarRecorrido = (Button) findViewById(R.id.buttonIniciar);
-        volverLista = (Button) findViewById(R.id.buttonBackList);
         cancelar = (Button) findViewById(R.id.buttonCancelar);
-        rutaInfo = (TextView) findViewById(R.id.rutaInfo);
-        rutaInfo.setVisibility(View.GONE);
-        volver.setVisibility(View.GONE);
-        volverLista.setVisibility(View.GONE);
-        iniciarRecorrido.setVisibility(View.GONE);
-        cancelar.setVisibility(View.GONE);
         guardar = (Button) findViewById(R.id.buttonGuardar);
         guardar.setVisibility(View.GONE);
 
-        // si el usuario desea buscar de forma avanzada
-        avanzada.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dirección.setVisibility(View.GONE);
-                avanzada.setVisibility(View.GONE);
-                autocompleteFragment.getView().setVisibility(View.VISIBLE);
-                volver.setVisibility(View.VISIBLE);
-            }
-        });
-
-        // si usuario desea volver a busqeuda normal
-        volver.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                dirección.setVisibility(View.VISIBLE);
-                avanzada.setVisibility(View.VISIBLE);
-                autocompleteFragment.getView().setVisibility(View.GONE);
-                volver.setVisibility(View.GONE);
-                dirección.setText("");
-                destinoAzul.setVisible(false);
-                desti = null;
-                Ndestino = null;
-                calculoDistancia();
-            }
-        });
-
-        listRutas = (ListView) findViewById(R.id.listRutas);
-        listRutas.setVisibility(View.GONE);
-        ArrayAdapter<String> adapter = new ArrayAdapter<String>(this,
-                android.R.layout.simple_list_item_1, listRutasString);
-        listRutas.setAdapter(adapter);
-        listRutas.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                routeSelected = i;
-                if (removePolyline())
-                    addPolyline(results, i);
-                iniciarRecorrido.setVisibility(View.VISIBLE);
-            }
-        });
-        // inicia recorrido con origen y destino dado
-        rutas.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                boolean complete = true;
-                if (desti == null) {
-                    Toast.makeText(NuevaActivity.this, "Especifique un destino", Toast.LENGTH_SHORT).show();
-                    complete = false;
-                }
-                if (origen == null) {
-                    Toast.makeText(NuevaActivity.this, "Especifique un origen", Toast.LENGTH_SHORT).show();
-                    complete = false;
-                }
-                if (complete) {
-                    DateTime now = new DateTime();
-                    try {
-                        results = DirectionsApi.newRequest(getGeoContext())
-                                .mode(TravelMode.DRIVING)// preguntar si hacer dos solictudes con
-                                // biclycling y si vacia con driving o solo driving
-                                .origin(new com.google.maps.model.LatLng(origen.latitude, origen.longitude))
-                                .destination(new com.google.maps.model.LatLng(desti.latitude, desti.longitude))
-                                .alternatives(true)
-                                .departureTime(now)
-                                .await();
-                        listRutasString.clear();
-                        if (results.routes.length > 0) {
-                            for (int i = 0; i < results.routes.length; i++) {
-                              /*  System.out.println("esto: "+i+" - "+results.routes[i].legs[0].startAddress);
-                                System.out.println("esto: "+i+" - "+results.routes[i].legs[0].distance);
-                                System.out.println("esto: "+i+" - "+results.routes[i].legs[0].endAddress);
-                                System.out.println("esto: "+i+" - "+results.routes[i].legs[0].arrivalTime);
-                                System.out.println("esto: "+i+" - "+results.routes[i].legs[0].duration);*/
-
-                                String valor = (i + 1) + ". Distancia a recorrer: " + results.routes[i].legs[0].distance +
-                                        " Duración: " + results.routes[i].legs[0].duration;
-                                listRutasString.add(valor);
-                            }
-                            listRutas.setVisibility(View.VISIBLE);
-                            rutaInfo.setVisibility(View.VISIBLE);
-                            volverLista.setVisibility(View.VISIBLE);
-                            rutas.setVisibility(View.GONE);
-                            dirección.setVisibility(View.GONE);
-                            avanzada.setVisibility(View.GONE);
-                            autocompleteFragment.getView().setVisibility(View.GONE);
-                            volver.setVisibility(View.GONE);
-                            mMap.moveCamera(CameraUpdateFactory.newLatLng(desti));
-                            mMap.moveCamera(CameraUpdateFactory.zoomTo(14));
-                        } else
-                            Toast.makeText(NuevaActivity.this, "No se encuentran rutas", Toast.LENGTH_SHORT).show();
-                    } catch (com.google.maps.errors.ApiException e) {
-                        e.printStackTrace();
-                        Toast.makeText(NuevaActivity.this, "Error con el servidor", Toast.LENGTH_SHORT).show();
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        Toast.makeText(NuevaActivity.this, "Se perdió conexión", Toast.LENGTH_SHORT).show();
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        Toast.makeText(NuevaActivity.this, "Error", Toast.LENGTH_SHORT).show();
-                    }
-                }
-            }
-        });
-
-        volverLista.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                listRutas.setVisibility(View.GONE);
-                rutaInfo.setVisibility(View.GONE);
-                rutas.setVisibility(View.VISIBLE);
-                volverLista.setVisibility(View.GONE);
-                iniciarRecorrido.setVisibility(View.GONE);
-                removePolyline();
-                routeSelected = 0;
-                if (!advanceLooking) {
-                    dirección.setVisibility(View.VISIBLE);
-                    avanzada.setVisibility(View.VISIBLE);
-                } else {
-                    autocompleteFragment.getView().setVisibility(View.VISIBLE);
-                    volver.setVisibility(View.VISIBLE);
-                }
-            }
-        });
-
-        iniciarRecorrido.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                volverLista.setVisibility(View.GONE);
-                listRutas.setVisibility(View.GONE);
-                rutaInfo.setVisibility(View.GONE);
-                cancelar.setVisibility(View.VISIBLE);
-                iniciarRecorrido.setVisibility(View.GONE);
-                recorriendo = true;
-                distanci.setText("Distancia ruta: " + results.routes[routeSelected].legs[0].distance);
-                tiempo.setText("Duración: " + results.routes[routeSelected].legs[0].duration);
-                mMap.moveCamera(CameraUpdateFactory.newLatLng(origen));
-                mMap.moveCamera(CameraUpdateFactory.zoomTo(17));
-                iniciarKm();
-
-                Date date = new Date();
-
-                re = new Recorrido();
-                String kim = results.routes[routeSelected].legs[0].distance.humanReadable;
-                StringTokenizer tok = new StringTokenizer(kim," ");
-                //System.err.println("valor es km"+tok.nextToken());
-                re.setKm(Double.parseDouble(tok.nextToken()));
-                String tim = results.routes[routeSelected].legs[0].duration.humanReadable;
-                tok = new StringTokenizer(tim," ");
-                re.setTiempo(Integer.parseInt(tok.nextToken()));
-               /* System.err.println("valor estiempo"+tok.nextToken());
-                System.err.println("valor date hora"+date.getHours()+":"+date.getMinutes()+":"+date.getSeconds());
-                System.err.println("valor date fecha"+(date.getYear()+1900)+"/"+
-                        (date.getMonth()+1)+"/"+(date.getDay()+22));*/
-                re.setTipo("Personal");
-                re.setHoraInicio(date.getHours()+":"+date.getMinutes()+":"+date.getSeconds());
-                re.setFechaInicio((date.getYear()+1900)+"/"+
-                        (date.getMonth()+1)+"/"+(date.getDate()));
-                Geocoder mGeocoder = new Geocoder(getBaseContext());
-                List<Address> addresses = null;
-                try {
-                    addresses = mGeocoder.getFromLocation(origen.latitude,origen.longitude,4);
-                    if (addresses != null && !addresses.isEmpty()) {
-                        Address addressResult = addresses.get(0);
-                        //System.err.println("valor es "+addressResult.getAddressLine(0));
-                        re.setOrigen(addressResult.getAddressLine(0));
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-                if(dirección.getText().toString().equals("")){
-                    try {
-                        addresses = mGeocoder.getFromLocation(desti.latitude,desti.longitude,4);
-                        if (addresses != null && !addresses.isEmpty()) {
-                            Address addressResult = addresses.get(0);
-                           // System.err.println("valor es "+addressResult.getAddressLine(0));
-                            if(addressResult.getAddressLine(0)!=null)
-                                re.setDestino(addressResult.getAddressLine(0));
-                            else
-                                re.setDestino("");
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }else{
-                    re.setDestino(dirección.getText().toString());
-                }
 
 
-            }
-        });
+
+
+
 
         cancelar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dirección.setVisibility(View.VISIBLE);
-                dirección.setText("");
-                removePolyline();
-                desti = null;
-                avanzada.setVisibility(View.VISIBLE);
-                rutas.setVisibility(View.VISIBLE);
-                cancelar.setVisibility(View.GONE);
-                destinoAzul.setVisible(false);
-                distanci.setText("");
-                tiempo.setText("");
-                routeSelected = 0;
-                recorriendo = false;
-                guardar.setVisibility(View.GONE);
-                kmDestino = 0;
-                primeraKm = true;
+
+                startActivity(new Intent(getApplicationContext(),InicioActivity.class));
             }
         });
 
         guardar.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // guarda datos  antes de set
-                dirección.setVisibility(View.VISIBLE);
-                dirección.setText("");
-                avanzada.setVisibility(View.VISIBLE);
-                rutas.setVisibility(View.VISIBLE);
-                cancelar.setVisibility(View.GONE);
-                guardar.setVisibility(View.GONE);
-                destinoAzul.setVisible(false);
-                distanci.setText("");
-                tiempo.setText("");
-                routeSelected = 0;
-                recorriendo = false;
-                kmDestino = 0;
-                primeraKm = true;
+                // guarda ruta
+                startActivity(new Intent(getApplicationContext(),InicioActivity.class));
             }
         });
     }
-
 
     /**
      * Manipulates the map once available.
@@ -490,8 +244,8 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
         mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
-
-        origen = new LatLng(4.628479, -74.064908);
+        double latO = getIntent().getDoubleExtra("latOrigen",0);
+        origen = new LatLng(latO,getIntent().getDoubleExtra("longOrigen",0));
         if (date.getHours() >= 6 && date.getHours() < 18) {
             dia = true;
             if (move != null)
@@ -589,25 +343,47 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
                 .icon(BitmapDescriptorFactory
                         .fromResource(R.drawable.castillo)));
 
+        enMovimiento();
+        distanci.setText("Distancia ruta: " + results.routes[routeSelected].legs[0].distance);
+        tiempo.setText("Duración: " + results.routes[routeSelected].legs[0].duration);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(origen));
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(17));
+        iniciarKm();
 
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-               // Toast.makeText(NuevaActivity.this, "CLICK EN " + latLng.toString(), Toast.LENGTH_SHORT).show();
-                if (mMap != null) {
-                    // System.out.println("destino es "+desti.latitude+ " - "+ desti.longitude);
-                    if(!recorriendo) {
-                        desti = latLng;
-                        destinoAzul.setPosition(desti);
-                        destinoAzul.setVisible(true);
-                        destinoAzul.setTitle("Destino");
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(desti));
-                        calculoDistancia();
-                    }
-
-                }
+        re = new Recorrido();
+        String kim = results.routes[routeSelected].legs[0].distance.humanReadable;
+        StringTokenizer tok = new StringTokenizer(kim," ");
+        re.setKm(Double.parseDouble(tok.nextToken()));
+        String tim = results.routes[routeSelected].legs[0].duration.humanReadable;
+        tok = new StringTokenizer(tim," ");
+        re.setTiempo(Integer.parseInt(tok.nextToken()));
+        re.setTipo(getIntent().getStringExtra("tipo"));
+        re.setHoraInicio(date.getHours()+":"+date.getMinutes()+":"+date.getSeconds());
+        re.setFechaInicio((date.getYear()+1900)+"/"+
+                (date.getMonth()+1)+"/"+(date.getDate()));
+        Geocoder mGeocoder = new Geocoder(getBaseContext());
+        List<Address> addresses = null;
+        try {
+            addresses = mGeocoder.getFromLocation(origen.latitude,origen.longitude,4);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address addressResult = addresses.get(0);
+                //System.err.println("valor es "+addressResult.getAddressLine(0));
+                re.setOrigen(addressResult.getAddressLine(0));
             }
-        });
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            addresses = mGeocoder.getFromLocation(desti.latitude,desti.longitude,4);
+            if (addresses != null && !addresses.isEmpty()) {
+                Address addressResult = addresses.get(0);
+                //System.err.println("valor es "+addressResult.getAddressLine(0));
+                re.setDestino(addressResult.getAddressLine(0));
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
@@ -617,14 +393,20 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
      * @param
      * @return
      */
-        private void localizarActual(){
+    private void localizarActual(){
         if(mMap != null && location!=null){
+            double lat = origen.latitude;
+            double lon = origen.longitude;
             origen = new LatLng(location.getLatitude(), location.getLongitude());
             bikeActual.setPosition(origen);
             bikeActual.setVisible(true);
             if(first){
                 mMap.moveCamera(CameraUpdateFactory.newLatLng(origen));
                 first = false;
+                if(distance(lat,lon,origen.latitude,origen.longitude)>0.08){
+                    Toast.makeText(this, "No esta en el punto de partida", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(this, "El recorrido se hará desde su posición", Toast.LENGTH_SHORT).show();
+                }
             }
         }
     }
@@ -680,9 +462,9 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
             // se pide localización usuario en la configuración
             LocationSettingsRequest.Builder builder	=	new
                     LocationSettingsRequest.Builder().addLocationRequest(mLocationRequest);
-            SettingsClient client	 =	LocationServices.getSettingsClient(NuevaActivity.this);
+            SettingsClient client	 =	LocationServices.getSettingsClient(NuevoProgramadoActivity.this);
             Task<LocationSettingsResponse> task	=	client.checkLocationSettings(builder.build());
-            task.addOnSuccessListener(NuevaActivity.this,	 new	OnSuccessListener<LocationSettingsResponse>()
+            task.addOnSuccessListener(NuevoProgramadoActivity.this,	 new	OnSuccessListener<LocationSettingsResponse>()
             {
                 @Override
                 public	void	onSuccess(LocationSettingsResponse locationSettingsResponse)	 {
@@ -691,7 +473,7 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
             });
 
             // paso extra en caso de estar apagado localización
-            task.addOnFailureListener(NuevaActivity.this,	 new	OnFailureListener()	 {
+            task.addOnFailureListener(NuevoProgramadoActivity.this,	 new	OnFailureListener()	 {
                 @Override
                 public	void	onFailure(@NonNull Exception	 e)	{
                     int statusCode =	((ApiException)	e).getStatusCode();
@@ -700,7 +482,7 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
                             //	Location	settings	are	not	satisfied,	but	this	can	be	fixed	by	showing	the	user	a	dialog.
                             try	{//	Show	the	dialog	by	calling	startResolutionForResult(),	and	check	the	result	in	onActivityResult().
                                 ResolvableApiException resolvable	 =	(ResolvableApiException)	 e;
-                                resolvable.startResolutionForResult(NuevaActivity.this,
+                                resolvable.startResolutionForResult(NuevoProgramadoActivity.this,
                                         REQUEST_CHECK_SETTINGS);// lanza dialogo para encender localización
                             }	catch	(IntentSender.SendIntentException sendEx)	{
                                 //	Ignore	the	error.
@@ -764,131 +546,7 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
         }
     }
 
-    /**
-     * Descripción: calcula la distancia recta
-     * a un destino dado.
-     * @param
-     * @return
-     */
-    public	double	distance(double	 lat1,	double	long1,	double	lat2,	double	long2)	{
-        double	latDistance =Math.toRadians(lat1-lat2);
-        double	lngDistance =Math.toRadians(long1 - long2);
-        double	a	=	Math.sin(latDistance/2)*Math.sin(latDistance/2)
-                +	Math.cos(Math.toRadians(lat1))*Math.cos(Math.toRadians(lat2))
-                *	Math.sin(lngDistance/2)*Math.sin(lngDistance/2);
-        double	c	=	2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
-        double	result	=RADIUS_OF_EARTH_KM*c;
-        return	Math.round(result*100.0)/100.0;
-    }
 
-    /**
-     * Descripción: busca las coordenadas
-     * de un lugar dado un nombre, y ubica
-     * el mapa en el destino.
-     * @param
-     * @return
-     */
-    private void buscarDireccion(){
-        Geocoder mGeocoder = new Geocoder(getBaseContext());
-        String addressString = dirección.getText().toString();
-        if (!addressString.isEmpty()) {
-            try {
-                List<Address> addresses = mGeocoder.getFromLocationName(
-                        addressString, 4,
-                        lowerLeftLatitude,
-                        lowerLeftLongitude,
-                        upperRightLatitude,
-                        upperRigthLongitude);
-                if (addresses != null && !addresses.isEmpty()) {
-                    Address addressResult = addresses.get(0);
-                    desti = new LatLng(addressResult.getLatitude(), addressResult.getLongitude());
-                    if (mMap != null) {
-                        // System.out.println("destino es "+desti.latitude+ " - "+ desti.longitude);
-                        Ndestino = addressResult.getFeatureName();
-                        destinoAzul.setPosition(desti);
-                        destinoAzul.setVisible(true);
-                        destinoAzul.setTitle(addressResult.getFeatureName());
-                        mMap.moveCamera(CameraUpdateFactory.newLatLng(desti));
-                        mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
-                        calculoDistancia();
-                        advanceLooking = false;
-                    }
-                } else {
-                    Toast.makeText(NuevaActivity.this, "Dirección no encontrada", Toast.LENGTH_SHORT).show();
-                    destinoAzul.setVisible(false);
-                    desti = null;
-                    Ndestino = null;
-                    calculoDistancia();
-                }
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        } else {
-            Toast.makeText(NuevaActivity.this, "La dirección esta vacía", Toast.LENGTH_SHORT).show();
-            destinoAzul.setVisible(false);
-            desti = null;
-            Ndestino = null;
-            calculoDistancia();
-        }
-    }
-
-    /**
-     * Descripción: escribe la distancia calculada.
-     * @param
-     * @return
-     */
-    private void calculoDistancia(){
-        if	(origen !=	null && desti!=null && !recorriendo){
-            distanci.setText("Distancia es: "+
-                    String.valueOf(distance(location.getLatitude(),location.getLongitude(),
-                            desti.latitude,desti.longitude))+" km");
-        }
-        else
-            distanci.setText("");
-    }
-
-    /**
-     * Descripción: opción de busqueda con
-     * placeautocompletefragment de google,
-     * y ubica el mapa en el destino.
-     * @param
-     * @return
-     */
-    private void busquedaAvanzada(){
-        autocompleteFragment = (PlaceAutocompleteFragment)
-                getFragmentManager().findFragmentById(R.id.place_autocomplete_fragment);
-        autocompleteFragment.getView().setVisibility(View.GONE);
-        autocompleteFragment.setBoundsBias(new LatLngBounds(
-                new LatLng(lowerLeftLongitude, lowerLeftLatitude),
-                new LatLng(upperRigthLongitude, upperRightLatitude)));
-        autocompleteFragment.setOnPlaceSelectedListener(new PlaceSelectionListener() {
-            @Override
-            public void onPlaceSelected(Place place) {
-                desti = new LatLng(place.getLatLng().latitude, place.getLatLng().longitude);
-                if (mMap != null) {
-                    Ndestino =  place.getName().toString();
-                    destinoAzul.setPosition(desti);
-                    destinoAzul.setVisible(true);
-                    destinoAzul.setTitle(place.getName().toString());
-                    mMap.moveCamera(CameraUpdateFactory.newLatLng(desti));
-                    mMap.moveCamera(CameraUpdateFactory.zoomTo(15));
-                    calculoDistancia();
-                    advanceLooking = true;
-                }
-                // Log.i("MAP", "Place: " + place.getName());
-            }
-
-            @Override
-            public void onError(Status status) {
-                Toast.makeText(NuevaActivity.this, "Error cargando destino", Toast.LENGTH_SHORT).show();
-            }
-        });
-
-    }
-
-    /*
-           Crea contexto con time outs
-        */
     /**
      * Descripción: crea contexto que pedirá
      * la ruta de un lugar.
@@ -999,19 +657,19 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
                 tiempo.setText("");
                 distanci.setText("Vuelva a iniciar recorrido");
                 e.printStackTrace();
-                Toast.makeText(NuevaActivity.this, "Error con el servidor", Toast.LENGTH_SHORT).show();
+                Toast.makeText(NuevoProgramadoActivity.this, "Error con el servidor", Toast.LENGTH_SHORT).show();
             } catch (InterruptedException e) {
                 recorriendo = false;
                 tiempo.setText("");
                 distanci.setText("Vuelva a iniciar recorrido");
                 e.printStackTrace();
-                Toast.makeText(NuevaActivity.this, "Se perdió conexión", Toast.LENGTH_SHORT).show();
+                Toast.makeText(NuevoProgramadoActivity.this, "Se perdió conexión", Toast.LENGTH_SHORT).show();
             } catch (IOException e) {
                 recorriendo = false;
                 tiempo.setText("");
                 distanci.setText("Vuelva a iniciar recorrido");
                 e.printStackTrace();
-                Toast.makeText(NuevaActivity.this, "Error en la ruta", Toast.LENGTH_SHORT).show();
+                Toast.makeText(NuevoProgramadoActivity.this, "Error en la ruta", Toast.LENGTH_SHORT).show();
             }
 
         }
@@ -1043,9 +701,9 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
                     String key = dataSnapshot.getKey();
-                   // System.out.println("valor es key "+key);
+                    // System.out.println("valor es key "+key);
                     Ubicacion ubi = dataSnapshot.getValue(Ubicacion.class);
-                   // System.out.println("valor es"+ubi.getNombre());
+                    // System.out.println("valor es"+ubi.getNombre());
                     updateUbicacion(ubi);
                 }
                 if (!dataSnapshot.hasChildren()) {
@@ -1055,7 +713,7 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(NuevaActivity.this, "ERROR subiendo a base de datos" + databaseError
+                Toast.makeText(NuevoProgramadoActivity.this, "ERROR subiendo a base de datos" + databaseError
                         .getMessage().toString(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -1067,7 +725,7 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
         ub.setLatitud(origen.latitude);
         ub.setLongitud(origen.longitude);
         myRef.child("ubicaciones/"+user.getUid())
-        .setValue(ub);
+                .setValue(ub);
 
     }
 
@@ -1076,47 +734,64 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
                 .setValue(ubi);
     }
 
+    /**
+     * Descripción: calcula la distancia recta
+     * a un destino dado.
+     * @param
+     * @return
+     */
+    public	double	distance(double	 lat1,	double	long1,	double	lat2,	double	long2)	{
+        double	latDistance =Math.toRadians(lat1-lat2);
+        double	lngDistance =Math.toRadians(long1 - long2);
+        double	a	=	Math.sin(latDistance/2)*Math.sin(latDistance/2)
+                +	Math.cos(Math.toRadians(lat1))*Math.cos(Math.toRadians(lat2))
+                *	Math.sin(lngDistance/2)*Math.sin(lngDistance/2);
+        double	c	=	2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a));
+        double	result	=RADIUS_OF_EARTH_KM*c;
+        return	Math.round(result*100.0)/100.0;
+    }
+
     private void getUsersNear(){
         myRef.child("ubicaciones/").addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
-                  //  System.err.println("valor es key " + singleSnapshot.getKey());
-                  //  System.out.println("valor es " + singleSnapshot.getValue());
-                     if(!singleSnapshot.getKey().equals(user.getUid())) {
+                    //  System.err.println("valor es key " + singleSnapshot.getKey());
+                    //  System.out.println("valor es " + singleSnapshot.getValue());
+                    if(!singleSnapshot.getKey().equals(user.getUid())) {
                         Ubicacion ubi = singleSnapshot.getValue(Ubicacion.class);
-                         LatLng pos = new LatLng(ubi.getLatitud(),ubi.getLongitud());
-                         double dis = distance(location.getLatitude(),location.getLongitude(),
-                                 pos.latitude,pos.longitude);
-                         //System.err.println("valor es dis: "+dis);
-                         if(dis<=1.0) {
-                           //  System.err.println("valor es dentro: "+ubi.getNombre());
-                             if (usuarios.containsKey(singleSnapshot.getKey())) {
-                                 Marker mark = usuarios.get(singleSnapshot.getKey());
-                                 mark.setPosition(pos);
-                                 usuarios.put(singleSnapshot.getKey(), mark);
-                                 usuariosExistente.put(singleSnapshot.getKey(), true);
-                             } else {
-                                 if (dia) {
-                                     Marker mark = mMap.addMarker(new MarkerOptions()
-                                             .position(pos)
-                                             .title(ubi.getNombre())
-                                             .icon(BitmapDescriptorFactory
-                                                     .fromResource(R.drawable.user)));
-                                     usuarios.put(singleSnapshot.getKey(), mark);
-                                     usuariosExistente.put(singleSnapshot.getKey(), true);
-                                 } else {
-                                     Marker mark = mMap.addMarker(new MarkerOptions()
-                                             .position(pos)
-                                             .title(ubi.getNombre())
-                                             .icon(BitmapDescriptorFactory
-                                                     .fromResource(R.drawable.usernight)));
-                                     usuarios.put(singleSnapshot.getKey(), mark);
-                                     usuariosExistente.put(singleSnapshot.getKey(), true);
-                                 }
+                        LatLng pos = new LatLng(ubi.getLatitud(),ubi.getLongitud());
+                        double dis = distance(location.getLatitude(),location.getLongitude(),
+                                pos.latitude,pos.longitude);
+                        //System.err.println("valor es dis: "+dis);
+                        if(dis<=1.0) {
+                            //  System.err.println("valor es dentro: "+ubi.getNombre());
+                            if (usuarios.containsKey(singleSnapshot.getKey())) {
+                                Marker mark = usuarios.get(singleSnapshot.getKey());
+                                mark.setPosition(pos);
+                                usuarios.put(singleSnapshot.getKey(), mark);
+                                usuariosExistente.put(singleSnapshot.getKey(), true);
+                            } else {
+                                if (dia) {
+                                    Marker mark = mMap.addMarker(new MarkerOptions()
+                                            .position(pos)
+                                            .title(ubi.getNombre())
+                                            .icon(BitmapDescriptorFactory
+                                                    .fromResource(R.drawable.user)));
+                                    usuarios.put(singleSnapshot.getKey(), mark);
+                                    usuariosExistente.put(singleSnapshot.getKey(), true);
+                                } else {
+                                    Marker mark = mMap.addMarker(new MarkerOptions()
+                                            .position(pos)
+                                            .title(ubi.getNombre())
+                                            .icon(BitmapDescriptorFactory
+                                                    .fromResource(R.drawable.usernight)));
+                                    usuarios.put(singleSnapshot.getKey(), mark);
+                                    usuariosExistente.put(singleSnapshot.getKey(), true);
+                                }
 
-                             }
-                         }
+                            }
+                        }
                     }
                 }
 
@@ -1133,13 +808,13 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
                     }
                 }
                 usuariosExistente = new HashMap<String, Boolean>(copia);
-              //  System.err.println("valor es usuariosExistentes 3"+usuariosExistente.size());
-              //  System.err.println("valor es usuarios 3"+usuarios.size());
+                //  System.err.println("valor es usuariosExistentes 3"+usuariosExistente.size());
+                //  System.err.println("valor es usuarios 3"+usuarios.size());
             }
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(NuevaActivity.this, "ERROR cargando usuarios cercanos" + databaseError
+                Toast.makeText(NuevoProgramadoActivity.this, "ERROR cargando usuarios cercanos" + databaseError
                         .getMessage().toString(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -1179,13 +854,13 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
             public void onDataChange(DataSnapshot dataSnapshot) {
                 for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
                     String key = dataSnapshot.getKey();
-                     //System.out.println("valor es key "+key);
+                    //System.out.println("valor es key "+key);
                     List<Recorrido> m = new ArrayList<Recorrido>();
-                     for(DataSnapshot d:singleSnapshot.getChildren()){// for de cada
-                         Recorrido reco = d.getValue(Recorrido.class);
-                         m.add(reco);
-                         //System.out.println("valor es"+reco.getOrigen());
-                     }
+                    for(DataSnapshot d:singleSnapshot.getChildren()){// for de cada
+                        Recorrido reco = d.getValue(Recorrido.class);
+                        m.add(reco);
+                        //System.out.println("valor es"+reco.getOrigen());
+                    }
                     //acá llenamos lista de recorridos anteriores, y luego update
                     updateRecorrido(m);
                 }
@@ -1196,7 +871,7 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
 
             @Override
             public void onCancelled(DatabaseError databaseError) {
-                Toast.makeText(NuevaActivity.this, "ERROR subiendo a base de datos" + databaseError
+                Toast.makeText(NuevoProgramadoActivity.this, "ERROR subiendo a base de datos" + databaseError
                         .getMessage().toString(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -1231,7 +906,7 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
             }
             @Override
             public void onCancelled(DatabaseError databaseError)	{
-                Toast.makeText(NuevaActivity.this, "Error descargando datos de usuario "+
+                Toast.makeText(NuevoProgramadoActivity.this, "Error descargando datos de usuario "+
                         databaseError.toException(), Toast.LENGTH_SHORT).show();
             }
         });
@@ -1269,4 +944,9 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
         myRef.child("users/"+mAuth.getCurrentUser().getUid())
                 .setValue(us);
     }
+
+    private void borrarProgramado() {
+        myRef.child("programados/"+user.getUid()+"/"+getIntent().getStringExtra("key")).removeValue();
+    }
+
 }
