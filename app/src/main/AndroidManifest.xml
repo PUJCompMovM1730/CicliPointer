@@ -10,6 +10,9 @@
         android:required="true" />
 
     <uses-permission android:name="android.permission.CAMERA" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+
+
 
     <application
         android:allowBackup="true"
@@ -57,6 +60,17 @@
             android:name="com.google.android.geo.API_KEY"
             android:value="@string/google_maps_key" />
 
+        <meta-data android:name="com.facebook.sdk.ApplicationId"
+            android:value="@string/facebook_app_id"/>
+
+        <activity android:name="com.facebook.FacebookActivity"
+            android:configChanges=
+                "keyboard|keyboardHidden|screenLayout|screenSize|orientation"
+            android:label="@string/app_name" />
+
+
+
+
         <activity
             android:name=".NuevaActivity"
             android:label="@string/title_activity_nueva" />
@@ -72,6 +86,11 @@
         <activity android:name=".MisProgramadosActivity" />
         <activity android:name=".MisProgramadosDetalleActivity" />
         <activity android:name=".MisGrupalesDetalleActivity"></activity>
+
+
+
     </application>
+
+
 
 </manifest>

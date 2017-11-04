@@ -9,5 +9,8 @@
 
     <string name="action_settings">Settings</string>
     <string name="title_activity_nueva">Map</string>
+    <string name="facebook_app_id">1392556524176616</string>
+    <string name="fb_login_protocol_scheme">fb1392556524176616</string>
+
 
 </resources>
