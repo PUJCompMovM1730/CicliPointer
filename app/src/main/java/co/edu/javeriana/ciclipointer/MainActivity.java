@@ -24,9 +24,13 @@ import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
 import com.facebook.FacebookSdk;
+import com.facebook.GraphRequest;
+import com.facebook.GraphResponse;
+import com.facebook.HttpMethod;
 import com.facebook.Profile;
 import com.facebook.ProfileTracker;
 import com.facebook.appevents.AppEventsLogger;
+import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -39,10 +43,22 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.google.firebase.storage.UploadTask;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.security.MessageDigest;
+import java.util.Arrays;
+
+import entities.Usuario;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -58,6 +74,10 @@ public class MainActivity extends AppCompatActivity {
     private AccessTokenTracker accessTokenTracker;
     private ProfileTracker profileTracker;
     private LoginButton loginButton;
+    private UserProfileChangeRequest.Builder upcrb = null;
+    private String email = null;
+    private DatabaseReference myRef;
+    private int cont = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,6 +86,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
 
+        myRef = FirebaseDatabase.getInstance().getReference();
         mAuth =	FirebaseAuth.getInstance();
         mAuthListener =	new	FirebaseAuth.AuthStateListener()	{
             @Override
@@ -75,90 +96,65 @@ public class MainActivity extends AppCompatActivity {
                     // Toast.makeText(MainActivity.this, "onAuthStateChanged:signed_in:", Toast.LENGTH_SHORT).show();
                     startActivity(new Intent(MainActivity.this,	InicioActivity.class));
                 }	else	{
+
+
                     //	User	is	signed	out
                     //Toast.makeText(MainActivity.this, "onAuthStateChanged:signed_out", Toast.LENGTH_SHORT).show();
                 }
             }
         };
 
+        if(FirebaseAuth.getInstance().getCurrentUser()==null) {
+            callbackManager = CallbackManager.Factory.create();
+            loginButton = (LoginButton) findViewById(R.id.login_button);
+            loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+                @Override
+                public void onSuccess(final LoginResult loginResult) {
+                    LoginManager.getInstance().logInWithReadPermissions(
+                            MainActivity.this, Arrays.asList("email")
+                    );
 
-        //AppEventsLogger.activateApp(this);
-        callbackManager = CallbackManager.Factory.create();
-        loginButton = (LoginButton) findViewById(R.id.login_button);
-        loginButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
-            @Override
-            public void onSuccess(final LoginResult loginResult) {
-                AccessToken accessToken = loginResult.getAccessToken();
-                Profile profile = Profile.getCurrentProfile();
+                    final AccessToken accessToken = loginResult.getAccessToken();
+                    final Profile profile = Profile.getCurrentProfile();
 
-                if(profile!=null){// acá ya tiene todo aceptado y entra primera vez
-                    registrar(accessToken);
-                    System.out.println("valor es 1: "+profile.getId());
-                    System.out.println("valor es 1: "+profile.getProfilePictureUri(70,70));
-                    System.out.println("valor es 1: "+profile.getName());
-                }
-                accessTokenTracker = new AccessTokenTracker() {
-                    @Override
-                    protected void onCurrentAccessTokenChanged(AccessToken oldAccessToken, AccessToken currentAccessToken) {
-
-                    }
-                };
-
-                profileTracker = new ProfileTracker() {
-                    @Override
-                    protected void onCurrentProfileChanged(Profile oldProfile, Profile currentProfile) {
-                        if(currentProfile!=null){
-                            // acá primera vez, cuando acepta.
-                            registrar(loginResult.getAccessToken());
-                            System.out.println("valor es 2: "+currentProfile.toString());
-                            System.out.println("valor es 2: "+currentProfile.getProfilePictureUri(50,50));
-                            System.out.println("valor es 2: "+currentProfile.getName());
-
+                    GraphRequest request = GraphRequest.newMeRequest(AccessToken.getCurrentAccessToken(), new GraphRequest.GraphJSONObjectCallback() {
+                        @Override
+                        public void onCompleted(JSONObject object, GraphResponse response) {
+                            final JSONObject json = response.getJSONObject();
+                            try {
+                                if (json != null) {
+                                    // System.out.println("email es: "+json.getString("email"));
+                                    email = json.getString("email");
+                                    if (profile != null && cont == 0) {// acá ya tiene todo aceptado y entra primera vez
+                                        cont ++;
+                                        registrar(accessToken);
+                                    }
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
                         }
-                    }
-                };
+                    });
 
-                accessTokenTracker.startTracking();
-                profileTracker.startTracking();
+                    Bundle parameters = new Bundle();
+                    parameters.putString("fields", "email");
+                    request.setParameters(parameters);
+                    request.executeAsync();
 
-                loginButton.setReadPermissions("public_profile");
+                }
 
-            }
+                @Override
+                public void onCancel() {
 
-            @Override
-            public void onCancel() {
+                }
 
-            }
+                @Override
+                public void onError(FacebookException error) {
 
-            @Override
-            public void onError(FacebookException error) {
+                }
+            });
 
-            }
-        });
-
-
-      /*  PackageInfo info;
-        String hash = null;
-        try {
-            info = getPackageManager().getPackageInfo("co.edu.javeriana.ciclipointer", PackageManager.GET_SIGNATURES);
-            for(Signature s: info.signatures){
-                MessageDigest md;
-                md = MessageDigest.getInstance("SHA");
-                md.update(s.toByteArray());
-                hash = new String(Base64.encode(md.digest(),0));
-            }
-        }catch (Exception e ){
-            e.printStackTrace();
         }
-
-        System.out.println("valor es: "+hash);*/
-        /*
-           - Obtenemos la instancia de firebase para el usuario
-           - Agregamos un listener que verifica si el usuario esta
-            o no logeado, si lo esta pasa directamente al inicio.
-         */
-
-
         user = (TextView) findViewById(R.id.nombreUs);
         mpassword = (TextView) findViewById(R.id.passUs);
         login = (Button) findViewById(R.id.Binicio);
@@ -270,25 +266,58 @@ public class MainActivity extends AppCompatActivity {
         callbackManager.onActivityResult(requestCode,resultCode,data);
     }
 
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-        Profile profile = Profile.getCurrentProfile();
-        if(profile!=null){// acá tiene ya sesión abierta y abre app
-            System.out.println("valor es 3: "+profile.getFirstName());
-        }
-    }
-
     private void registrar(AccessToken token){
         AuthCredential credential = FacebookAuthProvider.getCredential(token.getToken());
         mAuth.signInWithCredential(credential).addOnSuccessListener(new OnSuccessListener<AuthResult>() {
             @Override
             public void onSuccess(AuthResult authResult) {
-                FirebaseUser userr = mAuth.getCurrentUser();
-                System.out.println("valor es:: "+userr.getDisplayName());
-                // acá crear usuario firebase
-                // cerrar sesión que también cierre de fb
+                final FirebaseUser userr = mAuth.getCurrentUser();
+                myRef.child("users/"+mAuth.getCurrentUser().getUid())
+                        .addListenerForSingleValueEvent(new ValueEventListener() {
+                            @Override
+                            public void onDataChange(DataSnapshot dataSnapshot) {
+
+                                if (!dataSnapshot.hasChildren()){
+                                    final Profile profile = Profile.getCurrentProfile();
+                                    upcrb = new UserProfileChangeRequest.Builder();
+                                    upcrb.setDisplayName(profile.getName().toUpperCase());
+                                    upcrb.setPhotoUri(null);
+                                    userr.updateEmail(email).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+
+                                        }
+                                    });
+                                    userr.updateProfile(upcrb.build()).addOnSuccessListener(new OnSuccessListener<Void>() {
+                                        @Override
+                                        public void onSuccess(Void aVoid) {
+                                            Usuario us = new Usuario();
+                                            us.setAltura(0);
+                                            us.setEdad(0);
+                                            us.setPeso(0);
+                                            us.setRH("");
+                                            us.setKm(0);
+                                            us.setNombre(profile.getName().toUpperCase());
+                                            us.setCorreo(email);
+                                            myRef.child("users/"+mAuth.getCurrentUser().getUid())
+                                                    .setValue(us).addOnFailureListener(new OnFailureListener() {
+                                                @Override
+                                                public void onFailure(@NonNull Exception exception) {
+                                                    Toast.makeText(MainActivity.this, "Error guardar datos en servidor", Toast.LENGTH_SHORT).show();
+                                                }
+                                            });
+                                        }
+                                    });
+                                }
+                            }
+
+                            @Override
+                            public void onCancelled(DatabaseError databaseError) {
+
+                            }
+                        });
+
+
             }
         }).addOnFailureListener(new OnFailureListener() {
             @Override

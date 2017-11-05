@@ -231,6 +231,8 @@ public class ProfileActivity extends AppCompatActivity {
                     public void onFailure(@NonNull Exception exception) {
                         valor = false;
                         mProgressDialog.dismiss();
+                        Toast.makeText(ProfileActivity.this, "Seleccione una foto de perfil, " +
+                                "de lo contrario no podrá hacer cambios", Toast.LENGTH_LONG).show();
                     }
                 });
             }else
@@ -247,6 +249,7 @@ public class ProfileActivity extends AppCompatActivity {
     private boolean validateForm(){
         boolean cam = true;
         if(valor){
+
             contraseña = Pcontraseña.getText().toString();
             contraseña2 = Pcontraseña2.getText().toString();
             if(!TextUtils.isEmpty(contraseña)||!TextUtils.isEmpty(contraseña2)){
