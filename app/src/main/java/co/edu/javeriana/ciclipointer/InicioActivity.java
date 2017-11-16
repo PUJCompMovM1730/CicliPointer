@@ -20,7 +20,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bumptech.glide.Glide;
-import com.facebook.login.LoginManager;
 import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
@@ -33,6 +32,7 @@ import com.google.firebase.database.ValueEventListener;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 
+import entities.Parada;
 import services.ProgramadoService;
 
 
@@ -105,7 +105,116 @@ public class InicioActivity extends AppCompatActivity
                 startActivity(intent);
             }
         });
-    }
+
+        //-----------------------------------------------------
+
+    /*    Parada p = new Parada();
+        p.setLatitud(4.692610);
+        p.setLongitud(-74.033249);
+        myRef.child("propio/Comelona Usaquen/Chatarritas/Alrededores Hacienda Santa Barbara").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(4.697524);
+        p.setLongitud(-74.031095);
+        myRef.child("propio/Comelona Usaquen/Chatarritas/Empanada el Calidoso").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(4.699683);
+        p.setLongitud(-74.029037);
+        myRef.child("propio/Comelona Usaquen/Chatarritas/Restaurante Blancos y Negros").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(4.597926);
+        p.setLongitud(-74.069631);
+        myRef.child("propio/Comelona Usaquen/Bueno Bonito y Barato(3B) Centro/La Totuma Corrida").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(4.598704);
+        p.setLongitud(-74.070356);
+        myRef.child("propio/Comelona Usaquen/Bueno Bonito y Barato(3B) Centro/Café Para Dos").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(4.599527);
+        p.setLongitud(-74.069246);
+        myRef.child("propio/Comelona Usaquen/Bueno Bonito y Barato(3B) Centro/Sabrosuras Costeñas donde Carmen").setValue(p);
+
+
+        p = new Parada();
+        p.setLatitud(4.667685);
+        p.setLongitud(-74.053664);
+        myRef.child("propio/Romantica/Paisajes y alrededores/Irish Bar").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(4.674615);
+        p.setLongitud(-74.037002);
+        myRef.child("propio/Romantica/Paisajes y alrededores/Mirador la Calera").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(4.651512);
+        p.setLongitud(-74.054563);
+        myRef.child("propio/Romantica/Paisajes y alrededores/Restaurante El Cielo").setValue(p);
+
+
+        p = new Parada();
+        p.setLatitud(4.611039);
+        p.setLongitud(-74.070289);
+        myRef.child("propio/Romantica/Paisajes y alrededores/Torre Colpatria").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(4.621049);
+        p.setLongitud(-74.159738);
+        myRef.child("propio/Romantica/Cultura y Relax/Casa de Arte y Diseño Luz Beula").setValue(p);
+
+
+        p = new Parada();
+        p.setLatitud(4.598819);
+        p.setLongitud(-74.070599);
+        myRef.child("propio/Romantica/Cultura y Relax/Casa de la Poesía").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(4.662104);
+        p.setLongitud(-74.059921);
+        myRef.child("propio/Romantica/Cultura y Relax/Morfeo Café Relax").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(4.605694);
+        p.setLongitud(-74.055526);
+        myRef.child("propio/Alto Rendimiento/Montaña Extrema/Cerro Monserrate").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(5.018889);
+        p.setLongitud(-74.009984);
+        myRef.child("propio/Alto Rendimiento/Viaje Largo/Catedral de Sal Zipaquirá").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(4.674615);
+        p.setLongitud(-74.037002);
+        myRef.child("propio/Alto Rendimiento/Montaña Extrema/Mirador la Calera").setValue(p);
+//
+        p = new Parada();
+        p.setLatitud(4.670433);
+        p.setLongitud(-74.100956);
+        myRef.child("propio/Jovenes en Acción/Aventura Leve/Jardín Botanico").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(4.658639);
+        p.setLongitud(-74.093924);
+        myRef.child("propio/Jovenes en Acción/Aventura Leve/Parque Metropolitano Simon Bolívar").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(4.655398);
+        p.setLongitud(-74.084107);
+        myRef.child("propio/Jovenes en Acción/Aventura Leve/Palacio de los Deportes").setValue(p);
+
+        p = new Parada();
+        p.setLatitud(4.654693);
+        p.setLongitud(-74.081210);
+        myRef.child("propio/Jovenes en Acción/Aventura Leve/Lago Parque de los Novios").setValue(p);
+
+*/
+
+
+}
 
     @Override
     public void onBackPressed() {
@@ -183,7 +292,8 @@ public class InicioActivity extends AppCompatActivity
             Intent intent = new Intent(getApplicationContext(),MisProgramadosActivity.class);
             startActivity(intent);
         }else if (id == R.id.nav_share) {
-
+            Intent intent = new Intent(getApplicationContext(),EspecialActivity.class);
+            startActivity(intent);
         } else if (id == R.id.nav_send) {
 
         }

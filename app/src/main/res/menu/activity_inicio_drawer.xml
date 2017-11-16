@@ -22,14 +22,14 @@
             android:id="@+id/nav_mis_programados"
             android:icon="@drawable/programados"
             android:title="Mis Viajes programados" />
+        <item
+            android:id="@+id/nav_share"
+            android:icon="@drawable/ic_menu_share"
+            android:title="Rutas especiales" />
     </group>
 
     <item android:title="Communícate">
         <menu>
-            <item
-                android:id="@+id/nav_share"
-                android:icon="@drawable/ic_menu_share"
-                android:title="Comparte" />
             <item
                 android:id="@+id/nav_send"
                 android:icon="@drawable/ic_menu_send"

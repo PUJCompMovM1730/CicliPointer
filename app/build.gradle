@@ -19,7 +19,7 @@ android {
     }
 }
 
-repositories{
+repositories {
     mavenCentral()
 }
 
@@ -41,9 +41,12 @@ dependencies {
     compile 'com.google.android.gms:play-services-places:11.0.1'
     compile 'com.google.maps:google-maps-services:0.1.20'
     compile 'com.google.maps.android:android-maps-utils:0.4.+'
-    testCompile 'junit:junit:4.12'
     compile 'com.facebook.android:facebook-android-sdk:4.0.0'
+    testCompile 'junit:junit:4.12'
 }
+
+
+
 
 
 
