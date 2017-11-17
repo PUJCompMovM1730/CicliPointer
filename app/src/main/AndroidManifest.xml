@@ -83,7 +83,8 @@
         <activity android:name=".MisGrupalesDetalleActivity" />
         <activity android:name=".EspecialActivity" />
         <activity android:name=".RutaEspecialActivity" />
-        <activity android:name=".MapEspecialActivity"></activity>
+        <activity android:name=".MapEspecialActivity" />
+        <activity android:name=".InicioTurismo"></activity>
     </application>
 
 </manifest>

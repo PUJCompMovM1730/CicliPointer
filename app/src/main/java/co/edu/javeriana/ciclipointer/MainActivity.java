@@ -69,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
     private Button login, signup;
 
     private boolean autentication = false;
-
+    private boolean tipo = false;
     private CallbackManager callbackManager;
     private AccessTokenTracker accessTokenTracker;
     private ProfileTracker profileTracker;
@@ -93,8 +93,25 @@ public class MainActivity extends AppCompatActivity {
             public	void	onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth)	{
                 FirebaseUser user	=	firebaseAuth.getCurrentUser();
                 if	(user	!=	null)	{
+                    myRef.child("users/"+mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new	ValueEventListener(){
+                        @Override
+                        public void onDataChange(DataSnapshot dataSnapshot)	 {
+                            Usuario myUser =	dataSnapshot.getValue(Usuario.class);
+                            if(myUser.getTipo().equalsIgnoreCase("turismo")){
+                                startActivity(new Intent(MainActivity.this,InicioTurismo.class));
+                            }else{
+                                startActivity(new Intent(MainActivity.this,	InicioActivity.class));
+                            }
+                        }
+                        @Override
+                        public void onCancelled(DatabaseError databaseError)	{
+                            Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                            autentication = false;
+                        }
+                    });
                     // Toast.makeText(MainActivity.this, "onAuthStateChanged:signed_in:", Toast.LENGTH_SHORT).show();
-                    startActivity(new Intent(MainActivity.this,	InicioActivity.class));
+
+
                 }	else	{
 
 
@@ -165,8 +182,13 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if(validateForm()){
                     if(signin()){
-                        Intent intent = new Intent(getApplicationContext(),InicioActivity.class);
-                        startActivity(intent);
+                        if(!tipo) {
+                            Intent intent = new Intent(getApplicationContext(), InicioActivity.class);
+                            startActivity(intent);
+                        }else{
+                            Intent intent = new Intent(getApplicationContext(), InicioTurismo.class);
+                            startActivity(intent);
+                        }
                     }
                 }else
                     Toast.makeText(MainActivity.this, "Parámetros incorrectos", Toast.LENGTH_SHORT).show();
@@ -253,7 +275,23 @@ public class MainActivity extends AppCompatActivity {
                                 mpassword.setText("");
                             }
 
-                        }else autentication = true;
+                        }else {
+                            autentication = true;
+                            myRef.child("users/"+mAuth.getCurrentUser().getUid()).addListenerForSingleValueEvent(new	ValueEventListener(){
+                                @Override
+                                public void onDataChange(DataSnapshot dataSnapshot)	 {
+                                    Usuario myUser =	dataSnapshot.getValue(Usuario.class);
+                                    if(myUser.getTipo().equalsIgnoreCase("turismo")){
+                                        tipo = true;
+                                    }
+                                }
+                                @Override
+                                public void onCancelled(DatabaseError databaseError)	{
+                                    Toast.makeText(MainActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                                    autentication = false;
+                                }
+                            });
+                        }
                     }
                 });
         return autentication;

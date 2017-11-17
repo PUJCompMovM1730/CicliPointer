@@ -17,6 +17,7 @@ import android.text.TextUtils;
 import android.util.Patterns;
 import android.view.View;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
@@ -46,6 +47,7 @@ public class RegistroActivity extends AppCompatActivity {
     private EditText nombre, contraseña2,contraseña,correo;
     private FirebaseAuth mAuth ;
 
+    private CheckBox turismo;
     private final int MY_PERMISSIONS_REQUEST_CAMARA = 1;
     private final int IMAGE_PICKER_REQUEST = 2;
     private Button Galeria,Foto;
@@ -70,6 +72,7 @@ public class RegistroActivity extends AppCompatActivity {
         myRef = database.getReference();
         mStorageRef = FirebaseStorage.getInstance().getReference();
 
+        turismo = (CheckBox) findViewById(R.id.checkBox);
         registrarme = (Button) findViewById(R.id.Bregistro2);
         nombre = (EditText)findViewById(R.id.NombreUsuario);
         contraseña2 = (EditText)findViewById(R.id.Password2);
@@ -252,9 +255,14 @@ public class RegistroActivity extends AppCompatActivity {
             @Override
             public void onSuccess(Void aVoid) {
                 if (guardarDataBase()) {
+                    if(turismo.isChecked()){
+                        dbBoolean = true;
+                        startActivity(new Intent(RegistroActivity.this, InicioTurismo.class));
+                    }else{
+                        dbBoolean = true;
+                        startActivity(new Intent(RegistroActivity.this, InicioActivity.class));
+                    }
 
-                    dbBoolean = true;
-                    startActivity(new Intent(RegistroActivity.this, InicioActivity.class));
                 }else{
                     Toast.makeText(RegistroActivity.this, "Vuelva a intentarlo", Toast.LENGTH_SHORT).show();
                 }
@@ -284,6 +292,9 @@ public class RegistroActivity extends AppCompatActivity {
         us.setKm(0);
         us.setNombre(nombre.getText().toString().toUpperCase());
         us.setCorreo(correo.getText().toString());
+        if(turismo.isChecked()){
+            us.setTipo("turismo");
+        }
         myRef.child("users/"+mAuth.getCurrentUser().getUid())
                 .setValue(us).addOnFailureListener(new OnFailureListener() {
             @Override

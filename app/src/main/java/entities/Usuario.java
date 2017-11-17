@@ -13,6 +13,7 @@ public class Usuario {
     private double km;
     private String nombre;
     private String correo;
+    private String tipo;
 
     public Usuario() {
     }
@@ -71,5 +72,13 @@ public class Usuario {
 
     public void setRH(String RH) {
         this.RH = RH;
+    }
+
+    public String getTipo() {
+        return tipo;
+    }
+
+    public void setTipo(String tipo) {
+        this.tipo = tipo;
     }
 }
