@@ -97,7 +97,7 @@ public class MainActivity extends AppCompatActivity {
                         @Override
                         public void onDataChange(DataSnapshot dataSnapshot)	 {
                             Usuario myUser =	dataSnapshot.getValue(Usuario.class);
-                            if(myUser.getTipo().equalsIgnoreCase("turismo")){
+                            if(myUser.getTipo()!=null){
                                 startActivity(new Intent(MainActivity.this,InicioTurismo.class));
                             }else{
                                 startActivity(new Intent(MainActivity.this,	InicioActivity.class));
@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
                                 @Override
                                 public void onDataChange(DataSnapshot dataSnapshot)	 {
                                     Usuario myUser =	dataSnapshot.getValue(Usuario.class);
-                                    if(myUser.getTipo().equalsIgnoreCase("turismo")){
+                                    if(myUser.getTipo()!=null){
                                         tipo = true;
                                     }
                                 }

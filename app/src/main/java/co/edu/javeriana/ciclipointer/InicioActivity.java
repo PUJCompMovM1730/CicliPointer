@@ -296,6 +296,9 @@ public class InicioActivity extends AppCompatActivity
             startActivity(intent);
         } else if (id == R.id.nav_send) {
 
+        }else if (id == R.id.nav_turismo) {
+            Intent intent = new Intent(getApplicationContext(),ProgramadosTurismoActivity.class);
+            startActivity(intent);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

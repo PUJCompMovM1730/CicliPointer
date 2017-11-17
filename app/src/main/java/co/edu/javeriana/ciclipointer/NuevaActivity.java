@@ -80,6 +80,7 @@ import java.util.Map;
 import java.util.StringTokenizer;
 import java.util.concurrent.TimeUnit;
 
+import entities.Marcador;
 import entities.MisRuta;
 import entities.Recorrido;
 import entities.RecorridoUsuario;
@@ -134,6 +135,9 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
     private FirebaseUser user = null;
     private Map<String,Marker> usuarios = new HashMap<String,Marker>();
     private Map<String,Boolean> usuariosExistente = new HashMap<String,Boolean>();
+    private Map<String,Marker> marcadores = new HashMap<String,Marker>();
+    private Map<String,Boolean> marcadoresExistente = new HashMap<String,Boolean>();
+    private List<String> borrar = new ArrayList<>();
     private Recorrido re;
     private double kmOirginal = 0, pos = 0,
                     kmDestino = 0;
@@ -191,6 +195,8 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
                 }
                 updateLocalizacion(); //envía loc a firebase
                 getUsersNear();//busca usuarios cercanos y muestra
+                getMarcadoresNear();
+                borrarMarcadoresExpirados();
             }
         };
 
@@ -1287,5 +1293,84 @@ public class NuevaActivity extends FragmentActivity implements OnMapReadyCallbac
     private void updateUser(Usuario us){
         myRef.child("users/"+mAuth.getCurrentUser().getUid())
                 .setValue(us);
+    }
+
+    private void getMarcadoresNear(){
+        myRef.child("marcadores/").addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(DataSnapshot dataSnapshot) {
+                for (DataSnapshot singleSnapshot : dataSnapshot.getChildren()) {
+                    //  System.err.println("valor es key " + singleSnapshot.getKey());
+                    //  System.out.println("valor es " + singleSnapshot.getValue());
+                    if(!singleSnapshot.getKey().equals(user.getUid())) {
+                        Marcador m = singleSnapshot.getValue(Marcador.class);
+                        Date d = new Date();
+                        d.setMonth(d.getMonth()+1);
+                        d.setYear(d.getYear()+1900);
+                        StringTokenizer tok = new StringTokenizer(m.getFecha(),"/");
+                        int diaa = Integer.parseInt(tok.nextToken());
+                        int mes = Integer.parseInt(tok.nextToken());
+                        int año = Integer.parseInt(tok.nextToken());
+                        Date segunda = new Date(año,mes,diaa);
+                        if(d.compareTo(segunda)==1){
+                            //System.out.println("valor es: ya expiró");
+                            borrar.add(singleSnapshot.getKey());
+                        }else{
+                              LatLng pos = new LatLng(m.getLatitud(),m.getLongitud());
+                            double dis = distance(location.getLatitude(),location.getLongitude(),
+                                    pos.latitude,pos.longitude);
+                            //System.err.println("valor es dis: "+dis);
+                            if(dis<=1.0) {
+                                //  System.err.println("valor es dentro: "+ubi.getNombre());
+                                if (marcadores.containsKey(singleSnapshot.getKey())) {
+                                    Marker mark = marcadores.get(singleSnapshot.getKey());
+                                    mark.setPosition(pos);
+                                    marcadores.put(singleSnapshot.getKey(), mark);
+                                    marcadoresExistente.put(singleSnapshot.getKey(), true);
+                                } else {
+                                        Marker mark = mMap.addMarker(new MarkerOptions()
+                                                .position(pos)
+                                                .title(m.getNombre())
+                                                .snippet(m.getDescripción())
+                                                .icon(BitmapDescriptorFactory
+                                                        .fromResource(R.drawable.castillo)));
+                                        usuarios.put(singleSnapshot.getKey(), mark);
+                                        usuariosExistente.put(singleSnapshot.getKey(), true);
+                                }
+                            }
+                        }
+                    }
+                }
+
+                Map<String,Boolean> copia = new HashMap<String, Boolean>(marcadoresExistente);
+                for(String key:marcadoresExistente.keySet()){
+                    if(!marcadoresExistente.get(key)){
+                        //System.err.println("valor eliminado es "+usuarios.get(key).getTitle());
+                        marcadores.get(key).remove();
+                        marcadores.remove(key);
+                        copia.remove(key);
+
+                    }else{
+                        copia.put(key,false);
+                    }
+                }
+                marcadoresExistente = new HashMap<String, Boolean>(copia);
+                //  System.err.println("valor es usuariosExistentes 3"+usuariosExistente.size());
+                //  System.err.println("valor es usuarios 3"+usuarios.size());
+            }
+
+            @Override
+            public void onCancelled(DatabaseError databaseError) {
+                Toast.makeText(NuevaActivity.this, "ERROR cargando marcadores cercanos" + databaseError
+                        .getMessage().toString(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+
+    private void borrarMarcadoresExpirados(){
+        for(String k:borrar){
+            myRef.child("marcadores/"+k).removeValue();
+        }
+        borrar.clear();
     }
 }

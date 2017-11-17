@@ -84,7 +84,13 @@
         <activity android:name=".EspecialActivity" />
         <activity android:name=".RutaEspecialActivity" />
         <activity android:name=".MapEspecialActivity" />
-        <activity android:name=".InicioTurismo"></activity>
+        <activity android:name=".InicioTurismo" />
+        <activity android:name=".ProgramarViajeTurismoActivity" />
+        <activity android:name=".ProgramadoTurismoActivity" />
+        <activity android:name=".ProgramadosTurismoActivity" />
+        <activity android:name=".ProgramadosTurismoDetalleActivity" />
+        <activity android:name=".ProgrmarMarcadorActivity" />
+        <activity android:name=".MarcadorMapActivity"></activity>
     </application>
 
 </manifest>
